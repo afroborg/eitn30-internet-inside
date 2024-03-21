@@ -23,7 +23,7 @@ pub fn transmit() {
         // data_rate: DataRate::R2Mbps,
         channel: TX.channel,
         pa_level: PALevel::Low,
-        pipe0_address: *b"abc",
+        pipe0_address: *b"abcde",
         max_retries: 3,
         retry_delay: 2,
         ..Default::default()
@@ -56,7 +56,7 @@ pub fn receive() {
         data_rate: DataRate::R2Mbps,
         channel: RX.channel,
         pa_level: PALevel::Low,
-        pipe0_address: *b"abc",
+        pipe0_address: *b"abcde",
         ..Default::default()
     };
 

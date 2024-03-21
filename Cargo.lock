@@ -93,7 +93,6 @@ dependencies = [
 [[package]]
 name = "nrf24l01"
 version = "0.3.0"
-source = "git+https://github.com/afroborg/rust-nrf24l01.git#3205c31a3e01669116d4f0b3ef9b8201af48123e"
 dependencies = [
  "rppal",
  "spidev",
