@@ -1,22 +1,18 @@
-use std::io::Read;
+mod transcieve;
 
-#[tokio::main]
-async fn main() {
+fn main() {
     println!("Hello, world!");
 
-    let mut tun_config = tun::Configuration::default();
+    // let tx_thread = thread::spawn(|| {
+    transcieve::transmit();
+    // });
 
-    tun_config
-        .address((10, 0, 0, 1))
-        .netmask((255, 255, 255, 0))
-        .up();
+    /*let rx_thread = thread::spawn(|| {
+    transcieve::receive();
+    });*/
 
-    let mut dev = tun::create(&tun_config).unwrap();
+    //tx_thread.join().unwrap();
+    //rx_thread.join().unwrap();
 
-    let mut buff = [0u8; 1504];
-
-    loop {
-        let nbytes = dev.read(&mut buff).unwrap();
-        println!("{:?}", &buff[..nbytes]);
-    }
+    println!("Goodbye, world!");
 }

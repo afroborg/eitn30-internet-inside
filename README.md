@@ -34,14 +34,16 @@ The project is built using `cross` for the `aarch64-unknown-linux-gnu` with the 
 
 ```bash
 sh ./scripts/build.sh
+# or make build
 ```
 
 <!-- TODO: Update the deploy description when a more general deploy script is created -->
 
-To deploy the project to the `inuti06` Pi in the lab, run the following shell script:
+To deploy the project to the `inutiXX` Pi in the lab, run the following shell script:
 
 ```bash
-sh ./scripts/deploy.sh
+sh ./scripts/deploy.sh -n XX
+# or make deploy-mobile / make deploy-base
 ```
 
 ## Development
@@ -55,3 +57,9 @@ ssh -i ~/.ssh/eitn30-pi pi@inutixx.lab.eit.lth.se
 ## TODO?
 
 - Enable [`rpi_accel`](https://github.com/rtxm/rust-nrf24l01?tab=readme-ov-file#performance)
+
+## Devices
+
+Transmitter:
+SPI 0 - Device Number 1 - CE GPIO 17 (top)
+SPI 1 - Device Number 2 - CE GPIO 27 (bottom)

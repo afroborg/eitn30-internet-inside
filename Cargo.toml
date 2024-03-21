@@ -6,6 +6,22 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-# nrf24l01 = "0.2.0"
-tokio = { version = "1.36.0", features = ["full"] }
-tun = { version = "0.6.1", features = ["tokio"] }
+nrf24l01 = { version = "0.3.0", features = [
+], git = 'https://github.com/blennster/rust-nrf24l01.git' }
+rppal = "0.17.1"
+# tokio = { version = "1.36.0", features = ["full"] }
+# tun = { version = "0.6.1", features = ["tokio"] }
+
+[package.metadata.cross.build]
+default-target = "aarch64-unknown-linux-gnu"
+
+[profile.release]
+opt-level = 3
+debug = false
+debug-assertions = false
+overflow-checks = false
+lto = false
+panic = 'unwind'
+incremental = false
+codegen-units = 16
+rpath = false
