@@ -35,7 +35,7 @@ pub fn transmit() {
     device.flush_output().unwrap();
 
     loop {
-        println!("Loop!!");
+        println!("Loop tx!!");
         device.push(0, message).unwrap();
         match device.send() {
             Ok(retries) => println!("Message sent, {} retries needed", retries),
@@ -51,6 +51,7 @@ pub fn transmit() {
 }
 
 pub fn receive() {
+    println!("Recieving");
     // TODO: Check data rate
     let config = RXConfig {
         data_rate: DataRate::R2Mbps,
@@ -66,6 +67,7 @@ pub fn receive() {
     device.listen().unwrap();
 
     loop {
+        println!("Loop rx!!");
         sleep(Duration::from_millis(500));
         if device.data_available().unwrap() {
             device
