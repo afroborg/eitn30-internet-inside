@@ -7,7 +7,8 @@ edition = "2021"
 
 [dependencies]
 nrf24l01 = { version = "0.3.0", features = [
-], git = 'https://github.com/blennster/rust-nrf24l01.git' }
+    "rpi_accel",
+], git = "https://github.com/afroborg/rust-nrf24l01.git" }
 rppal = "0.17.1"
 # tokio = { version = "1.36.0", features = ["full"] }
 # tun = { version = "0.6.1", features = ["tokio"] }
