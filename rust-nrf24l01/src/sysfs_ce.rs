@@ -1,6 +1,5 @@
-extern crate sysfs_gpio;
-
 use std::io;
+use sysfs_gpio;
 
 pub struct CEPin {
     ce_pin: sysfs_gpio::Pin,

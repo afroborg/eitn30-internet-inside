@@ -7,20 +7,21 @@ use nrf24l01::{DataRate, OperatingMode, PALevel, RXConfig, TXConfig, NRF24L01};
 mod models;
 
 const TX: Transciever = Transciever {
-    ce_pin: 17,
+    ce_pin: 7,
     spi: 0,
     channel: 108,
 };
+
 const RX: Transciever = Transciever {
-    ce_pin: 27,
+    ce_pin: 17,
     spi: 1,
-    channel: 108,
+    channel: TX.channel,
 };
 
 pub fn transmit() {
     println!("Transmitting");
     let config = TXConfig {
-        // data_rate: DataRate::R2Mbps,
+        data_rate: DataRate::R2Mbps,
         channel: TX.channel,
         pa_level: PALevel::Low,
         pipe0_address: *b"abcde",
@@ -40,7 +41,6 @@ pub fn transmit() {
         match device.send() {
             Ok(retries) => println!("Message sent, {} retries needed", retries),
 
-            // TODO: What does Err mean here? It is that the transmitter is not connected to the RP?
             Err(err) => {
                 println!("Destination unreachable: {:?}", err);
                 device.flush_output().unwrap()
@@ -52,7 +52,6 @@ pub fn transmit() {
 
 pub fn receive() {
     println!("Recieving");
-    // TODO: Check data rate
     let config = RXConfig {
         data_rate: DataRate::R2Mbps,
         channel: RX.channel,

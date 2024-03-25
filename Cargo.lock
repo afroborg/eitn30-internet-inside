@@ -37,7 +37,6 @@ name = "eitn30-internet-inside"
 version = "0.1.0"
 dependencies = [
  "nrf24l01",
- "rppal",
 ]
 
 [[package]]

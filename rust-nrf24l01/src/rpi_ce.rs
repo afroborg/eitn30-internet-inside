@@ -4,11 +4,10 @@ use std::io;
 
 use rppal::gpio::OutputPin;
 
-use self::rppal::gpio::{Gpio as GPIO, Level, Mode};
+use self::rppal::gpio::{Gpio as GPIO, Level};
 
 pub struct CEPin {
     gpio: OutputPin,
-    ce_pin: u8,
     value: Level,
     saved_value: Level,
 }
@@ -17,13 +16,12 @@ impl CEPin {
     // add code here
     pub fn new(pin_num: u64) -> io::Result<CEPin> {
         let pin_num8 = pin_num as u8;
-        let mut gpio = GPIO::new().unwrap();
+        let gpio = GPIO::new().unwrap();
 
-        let mut pin = gpio.get(pin_num8).unwrap().into_output();
+        let pin = gpio.get(pin_num8).unwrap().into_output();
 
         Ok(CEPin {
             gpio: pin,
-            ce_pin: pin_num8,
             value: Level::Low,
             saved_value: Level::Low,
         })
