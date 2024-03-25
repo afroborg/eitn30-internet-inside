@@ -1,15 +1,21 @@
+use clap::Parser;
 use std::thread;
 use std::thread::sleep;
 use std::time::Duration;
 use transceive::{Receiver, Transmitter};
 
+mod cli;
 mod transceive;
 
 fn main() {
     println!("Hello, world!");
 
-    let address = *b"abcde";
-    let channel = 108;
+    let args = cli::Args::parse();
+
+    let mut address = *b"chan0";
+    address[4] = args.address;
+
+    let channel = args.channel;
 
     let mut tx = Transmitter::new(7, 0, channel, address);
     let mut rx = Receiver::new(17, 1, channel, address);
