@@ -10,6 +10,7 @@ clap = { version = "4.5.3", features = ["derive"] }
 nrf24l01 = { version = "0.3.0", features = [
     "rpi_accel",
 ], path = "./rust-nrf24l01" }
+packet = "0.1.4"
 tun = "0.6.1"
 
 [package.metadata.cross.build]

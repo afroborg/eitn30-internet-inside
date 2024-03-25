@@ -68,7 +68,8 @@ fn tx_main(tx: &mut Transmitter, tun_reader: &mut TunReader) {
 
         data.chunks(32).for_each(|chunk| {
             match tx.transmit(&chunk) {
-                Ok(retries) => println!("Transmitted in {} retries", retries),
+                // Ok(retries) => println!("Transmitted in {} retries", retries),
+                Ok(_) => (),
                 Err(e) => println!("Error: {}", e),
             };
 
@@ -80,12 +81,35 @@ fn tx_main(tx: &mut Transmitter, tun_reader: &mut TunReader) {
 }
 
 fn rx_main(rx: &mut Receiver, tun_writer: &mut TunWriter) {
+    let mut buf = [0u8; 4096];
+    let mut end = 0;
+
     loop {
         sleep(Duration::from_millis(DEFAULT_DELAY));
 
         if let Some(data) = rx.receive() {
-            println!("Received: {:?}", data)
-            // tun_writer.write(&data);
+            let start = end;
+            end += data.len();
+            buf[start..end].copy_from_slice(&data);
+
+            match packet::ip::Packet::new(&buf[..end]) {
+                Ok(packet) => {
+                    let packet_length = match &packet {
+                        packet::ip::Packet::V4(packet) => packet.length() as usize,
+                        packet::ip::Packet::V6(_) => {
+                            40 + u16::from_be_bytes([buf[4], buf[5]]) as usize
+                        }
+                    };
+
+                    if end >= packet_length {
+                        println!("Packet: {:?} with length {}", &packet, packet_length);
+                        tun_writer.write(&buf[..end].to_vec());
+                        buf = [0u8; 4096];
+                        end = 0;
+                    }
+                }
+                _ => (),
+            }
         };
     }
 }
