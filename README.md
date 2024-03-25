@@ -63,7 +63,8 @@ And run the script from the `eitn30` directory:
 
 ```bash
 cd eitn30                 # To move to the eitn30 directory
-./eitn30-internet-inside  # To run the script
+./eitn30-internet-inside --receiver-address 1 --transmitter-address 0 --receiver-channel 116 --transmitter-channel 108 --message 24  # On the mobile unit
+./eitn30-internet-inside --receiver-address 0 --transmitter-address 1 --receiver-channel 108 --transmitter-channel 116 --message 06  # On the base station
 ```
 
 ## Devices

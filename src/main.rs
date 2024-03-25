@@ -12,16 +12,17 @@ fn main() {
 
     let args = cli::Args::parse();
 
-    let mut address = *b"chan0";
-    address[4] = args.address;
+    let mut address = *b"addr0";
+    address[4] = args.receiver_address;
+    let receiver_address = address.clone();
+    address[4] = args.transmitter_address;
+    let transmitter_address = address.clone();
 
-    let channel = args.channel;
-
-    let mut tx = Transmitter::new(7, 0, channel, address);
-    let mut rx = Receiver::new(17, 1, channel, address);
+    let mut tx = Transmitter::new(7, 0, args.transmitter_channel, transmitter_address);
+    let mut rx = Receiver::new(17, 1, args.receiver_channel, receiver_address);
 
     let tx_thread = thread::spawn(move || loop {
-        match tx.transmit(b"Hello there") {
+        match tx.transmit(args.message.as_bytes()) {
             Ok(retries) => println!("Transmitted in {} retries", retries),
             Err(e) => println!("Error: {}", e),
         };
