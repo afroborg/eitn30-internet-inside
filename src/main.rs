@@ -92,24 +92,13 @@ fn rx_main(rx: &mut Receiver, tun_writer: &mut TunWriter) {
             end += data.len();
             buf[start..end].copy_from_slice(&data);
 
-            match packet::ip::Packet::new(&buf[..end]) {
-                Ok(packet) => {
-                    let packet_length = match &packet {
-                        packet::ip::Packet::V4(packet) => packet.length() as usize,
-                        packet::ip::Packet::V6(_) => {
-                            40 + u16::from_be_bytes([buf[4], buf[5]]) as usize
-                        }
-                    };
-
-                    if end >= packet_length {
-                        println!("Packet: {:?} with length {}", &packet, packet_length);
-                        tun_writer.write(&buf[..end].to_vec());
-                        buf = [0u8; 4096];
-                        end = 0;
-                    }
-                }
-                _ => (),
+            if !interface::packet::is_valid(&buf[..end]) {
+                continue;
             }
+
+            tun_writer.write(&buf[..end].to_vec());
+            buf = [0u8; 4096];
+            end = 0;
         };
     }
 }
