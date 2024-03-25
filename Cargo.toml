@@ -10,8 +10,7 @@ clap = { version = "4.5.3", features = ["derive"] }
 nrf24l01 = { version = "0.3.0", features = [
     "rpi_accel",
 ], path = "./rust-nrf24l01" }
-# tokio = { version = "1.36.0", features = ["full"] }
-# tun = { version = "0.6.1", features = ["tokio"] }
+tun = "0.6.1"
 
 [package.metadata.cross.build]
 default-target = "aarch64-unknown-linux-gnu"

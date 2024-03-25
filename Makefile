@@ -11,3 +11,4 @@ deploy-base:
 	sh scripts/deploy.sh -n $(base_number)
 deploy-mobile:
 	sh scripts/deploy.sh -n $(mobile_number)
+deploy: deploy-base deploy-mobile

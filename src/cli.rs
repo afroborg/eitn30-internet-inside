@@ -18,8 +18,4 @@ pub struct Args {
     /// Frequency of the receiver channel, should be a number between 0 and 125
     #[arg(short, long, default_value_t = 108, value_parser=clap::value_parser!(u8).range(0..125))]
     pub transmitter_channel: u8,
-
-    // The message to send repeatedly
-    #[arg(short, long)]
-    pub message: String,
 }

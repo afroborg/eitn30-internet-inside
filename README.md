@@ -61,10 +61,20 @@ make connect-base    # To connect to the base station
 
 And run the script from the `eitn30` directory:
 
+<!-- TODO: Change script when both PIs communicate with eachother -->
+
 ```bash
 cd eitn30                 # To move to the eitn30 directory
-./eitn30-internet-inside --receiver-address 1 --transmitter-address 0 --receiver-channel 116 --transmitter-channel 108 --message 24  # On the mobile unit
-./eitn30-internet-inside --receiver-address 0 --transmitter-address 1 --receiver-channel 108 --transmitter-channel 116 --message 06  # On the base station
+./eitn30-internet-inside --receiver-address 0 --transmitter-address 0 --receiver-channel 116 --transmitter-channel 116  # On the mobile unit
+./eitn30-internet-inside --receiver-address 1 --transmitter-address 1 --receiver-channel 108 --transmitter-channel 108  # On the base station
+```
+
+### Development
+
+When the script is running, the network information can be viewed by running:
+
+```bash
+sudo tcpdump -i tun0 dst 10.0.0.<transmitter_address>
 ```
 
 ## Devices
