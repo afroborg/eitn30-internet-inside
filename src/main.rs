@@ -1,6 +1,5 @@
 use clap::Parser;
-use interface::{Tun, TunReader, TunWriter};
-use std::process::Command;
+use interface::{tun, TunReader, TunWriter};
 use std::thread;
 use std::thread::sleep;
 use std::time::Duration;
@@ -14,12 +13,11 @@ const TRANSMITTER_GPIO: u64 = 7;
 const TRANSMITTER_SPI_CHANNEL: u8 = 0;
 const RECEIVER_GPIO: u64 = 17;
 const RECEIVER_SPI_CHANNEL: u8 = 1;
+const TUN_INTERFACE_NAME: &str = "longge";
 
 const DEFAULT_DELAY: u64 = 100;
 
 fn main() {
-    println!("Hello, world!");
-
     let args = cli::Args::parse();
 
     let address = *b"addr0";
@@ -30,17 +28,11 @@ fn main() {
     // Handle base station mode
     if let Some(forward) = args.forward {
         println!("Running in base station mode");
-        dbg!(forward);
-        Command::new("sh")
-            .arg("-c")
-            .arg("echo 1 > /proc/sys/net/ipv4/ip_forward")
-            .output()
-            .expect("Failed to enable IP forwarding");
+        interface::forward::apply(TUN_INTERFACE_NAME, &forward);
     } else {
         println!("Running in mobile mode");
     }
-
-    let (mut tun_reader, mut tun_writer) = Tun::new(args.transmitter_address);
+    let (mut tun_reader, mut tun_writer) = tun::new(TUN_INTERFACE_NAME, args.transmitter_address);
 
     let mut tx = Transmitter::new(
         TRANSMITTER_GPIO,
@@ -61,8 +53,6 @@ fn main() {
 
     tx_thread.join().unwrap();
     rx_thread.join().unwrap();
-
-    println!("Goodbye, world!");
 }
 
 fn change_last_byte(address: &[u8; 5], value: u8) -> [u8; 5] {
