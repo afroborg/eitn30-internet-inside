@@ -2,7 +2,7 @@ use nrf24l01::{DataRate, OperatingMode, PALevel, RXConfig, TXConfig, NRF24L01};
 
 // TODO? Abstract out these constants
 const DATA_RATE: DataRate = DataRate::R2Mbps;
-const PA_LEVEL: PALevel = PALevel::Low;
+const PA_LEVEL: PALevel = PALevel::Min;
 
 pub struct Transceiver {
     ce_pin: u64,

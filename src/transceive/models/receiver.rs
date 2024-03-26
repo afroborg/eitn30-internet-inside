@@ -14,19 +14,22 @@ impl Receiver {
         Self { device }
     }
 
-    pub fn receive(&mut self) -> Option<Vec<u8>> {
+    pub fn receive(&mut self, buf: &mut [u8; 4096], end: usize) -> Result<usize, String> {
         match self.device.data_available() {
             Ok(true) => {
-                let mut vec = vec![];
+                let mut e = end;
+
                 self.device
                     .read_all(|packet| {
-                        vec.extend_from_slice(packet);
+                        let start = e;
+                        e += packet.len();
+                        buf[start..e].copy_from_slice(&packet);
                     })
                     .unwrap();
 
-                Some(vec)
+                Ok(e)
             }
-            _ => None,
+            _ => Err("No data available".to_string()),
         }
     }
 }

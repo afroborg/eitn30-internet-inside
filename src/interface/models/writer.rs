@@ -12,7 +12,9 @@ impl TunWriter {
 
     pub fn write(&mut self, data: &Vec<u8>) {
         match self.writer.write(data) {
-            Ok(size) => println!("Wrote {} bytes to tun device", size),
+            Ok(_size) => {
+                // println!("Wrote {} bytes to tun device", size)
+            }
             Err(e) => {
                 eprintln!("Error writing to tun device: {}", e);
             }

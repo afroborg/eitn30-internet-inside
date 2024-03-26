@@ -13,12 +13,20 @@ impl Transmitter {
         Self { device }
     }
 
-    pub fn transmit(&mut self, message: &[u8]) -> Result<u8, String> {
-        self.device.push(0, message).unwrap();
+    pub fn push(&mut self, message: &[u8]) -> Result<(), String> {
+        self.device
+            .push(0, message)
+            .map_err(|err| format!("{:?}", err))
+    }
 
+    pub fn transmit(&mut self, retries: u8) -> Result<u8, String> {
         match self.device.send() {
             Ok(retries) => Ok(retries),
             Err(err) => {
+                if retries > 0 {
+                    return self.transmit(retries - 1);
+                }
+
                 self.device.flush_output().unwrap();
                 Err(format!("Destination unreachable: {:?}", err))
             }

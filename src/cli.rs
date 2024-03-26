@@ -22,4 +22,8 @@ pub struct Args {
     /// Base station interface forwarding
     #[arg(short, long, default_value = None)]
     pub forward: Option<Vec<String>>,
+
+    /// Delay between each transmission
+    #[arg(short, long, default_value_t = 20, value_parser=clap::value_parser!(u64))]
+    pub delay: u64,
 }

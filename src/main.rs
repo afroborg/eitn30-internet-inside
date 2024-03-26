@@ -15,8 +15,6 @@ const RECEIVER_GPIO: u64 = 17;
 const RECEIVER_SPI_CHANNEL: u8 = 1;
 const TUN_INTERFACE_NAME: &str = "longge";
 
-const DEFAULT_DELAY: u64 = 100;
-
 fn main() {
     let args = cli::Args::parse();
 
@@ -32,6 +30,7 @@ fn main() {
     } else {
         println!("Running in mobile mode");
     }
+
     let (mut tun_reader, mut tun_writer) = tun::new(TUN_INTERFACE_NAME, args.transmitter_address);
 
     let mut tx = Transmitter::new(
@@ -48,8 +47,8 @@ fn main() {
         receiver_address,
     );
 
-    let tx_thread = thread::spawn(move || tx_main(&mut tx, &mut tun_reader));
-    let rx_thread = thread::spawn(move || rx_main(&mut rx, &mut tun_writer));
+    let tx_thread = thread::spawn(move || tx_main(&mut tx, &mut tun_reader, args.delay));
+    let rx_thread = thread::spawn(move || rx_main(&mut rx, &mut tun_writer, args.delay));
 
     tx_thread.join().unwrap();
     rx_thread.join().unwrap();
@@ -61,52 +60,49 @@ fn change_last_byte(address: &[u8; 5], value: u8) -> [u8; 5] {
     new_address
 }
 
-fn tx_main(tx: &mut Transmitter, tun_reader: &mut TunReader) {
+fn tx_main(tx: &mut Transmitter, tun_reader: &mut TunReader, delay: u64) {
     println!("Transmitter thread started");
 
     loop {
         let data = tun_reader.read();
 
         if data.is_empty() {
-            sleep(Duration::from_millis(DEFAULT_DELAY));
+            sleep(Duration::from_micros(delay));
             continue;
         }
 
         data.chunks(32).for_each(|chunk| {
-            match tx.transmit(&chunk) {
-                // Ok(retries) => println!("Transmitted in {} retries", retries),
-                Ok(_) => (),
-                Err(e) => println!("Error: {}", e),
+            if let Err(e) = tx.push(&chunk).and(tx.transmit(10)) {
+                println!("Error: {}", e);
             };
 
-            sleep(Duration::from_millis(DEFAULT_DELAY));
+            sleep(Duration::from_micros(delay));
         });
-
-        sleep(Duration::from_millis(DEFAULT_DELAY));
     }
 }
 
-fn rx_main(rx: &mut Receiver, tun_writer: &mut TunWriter) {
+fn rx_main(rx: &mut Receiver, tun_writer: &mut TunWriter, delay: u64) {
     println!("Receiver thread started");
 
     let mut buf = [0u8; 4096];
     let mut end = 0;
 
     loop {
-        sleep(Duration::from_millis(DEFAULT_DELAY));
+        if end + 96 >= 4096 {
+            end = 0;
+        }
 
-        if let Some(data) = rx.receive() {
-            let start = end;
-            end += data.len();
-            buf[start..end].copy_from_slice(&data);
+        if let Ok(new_end) = rx.receive(&mut buf, end) {
+            end = new_end;
 
             if !interface::packet::is_valid(&buf[..end]) {
                 continue;
             }
 
             tun_writer.write(&buf[..end].to_vec());
-            buf = [0u8; 4096];
             end = 0;
         };
+
+        sleep(Duration::from_micros(delay / 2));
     }
 }
