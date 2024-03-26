@@ -12,6 +12,7 @@ impl Tun {
             // .destination((10, 0, 0, 2)) // TODO: Check if we need destination address as well
             .netmask((255, 255, 255, 0))
             // .mtu(32) // The payload in our interface is 32 bytes
+            .name("longge")
             .up();
 
         let device = tun::create(&tun_config).unwrap();

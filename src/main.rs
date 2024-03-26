@@ -1,5 +1,6 @@
 use clap::Parser;
 use interface::{Tun, TunReader, TunWriter};
+use std::process::Command;
 use std::thread;
 use std::thread::sleep;
 use std::time::Duration;
@@ -25,6 +26,19 @@ fn main() {
 
     let receiver_address = change_last_byte(&address, args.receiver_address);
     let transmitter_address = change_last_byte(&address, args.transmitter_address);
+
+    // Handle base station mode
+    if let Some(forward) = args.forward {
+        println!("Running in base station mode");
+        dbg!(forward);
+        Command::new("sh")
+            .arg("-c")
+            .arg("echo 1 > /proc/sys/net/ipv4/ip_forward")
+            .output()
+            .expect("Failed to enable IP forwarding");
+    } else {
+        println!("Running in mobile mode");
+    }
 
     let (mut tun_reader, mut tun_writer) = Tun::new(args.transmitter_address);
 
@@ -58,6 +72,8 @@ fn change_last_byte(address: &[u8; 5], value: u8) -> [u8; 5] {
 }
 
 fn tx_main(tx: &mut Transmitter, tun_reader: &mut TunReader) {
+    println!("Transmitter thread started");
+
     loop {
         let data = tun_reader.read();
 
@@ -81,6 +97,8 @@ fn tx_main(tx: &mut Transmitter, tun_reader: &mut TunReader) {
 }
 
 fn rx_main(rx: &mut Receiver, tun_writer: &mut TunWriter) {
+    println!("Receiver thread started");
+
     let mut buf = [0u8; 4096];
     let mut end = 0;
 
