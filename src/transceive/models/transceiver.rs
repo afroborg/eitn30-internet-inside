@@ -38,6 +38,8 @@ impl Transceiver {
             channel,
             pa_level: PA_LEVEL,
             pipe0_address: address,
+            retry_delay: 10,
+            max_retries: 15,
             ..Default::default()
         };
 

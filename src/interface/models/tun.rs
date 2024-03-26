@@ -7,7 +7,7 @@ pub fn new(interface_name: &str, address: u8) -> (TunReader, TunWriter) {
     tun_config
         .address((10, 0, 0, address))
         .netmask((255, 255, 255, 0))
-        // .mtu(32) // The payload in our interface is 32 bytes
+        .mtu(65535)
         .name(interface_name)
         .up();
 

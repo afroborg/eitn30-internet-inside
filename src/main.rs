@@ -88,7 +88,8 @@ fn rx_main(rx: &mut Receiver, tun_writer: &mut TunWriter, delay: u64) {
     let mut end = 0;
 
     loop {
-        if end + 96 >= 4096 {
+        // Getting overflow from another packet
+        if end + 49 >= 4096 {
             end = 0;
         }
 
