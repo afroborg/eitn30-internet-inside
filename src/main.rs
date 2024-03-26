@@ -14,11 +14,12 @@ const TRANSMITTER_SPI_CHANNEL: u8 = 0;
 const RECEIVER_GPIO: u64 = 17;
 const RECEIVER_SPI_CHANNEL: u8 = 1;
 const TUN_INTERFACE_NAME: &str = "longge";
+const ADDRESS_WIDTH: usize = 3;
 
 fn main() {
     let args = cli::Args::parse();
 
-    let address = *b"addr0";
+    let address = *b"ad0";
 
     let receiver_address = change_last_byte(&address, args.receiver_address);
     let transmitter_address = change_last_byte(&address, args.transmitter_address);
@@ -54,9 +55,9 @@ fn main() {
     rx_thread.join().unwrap();
 }
 
-fn change_last_byte(address: &[u8; 5], value: u8) -> [u8; 5] {
+fn change_last_byte(address: &[u8; ADDRESS_WIDTH], value: u8) -> [u8; ADDRESS_WIDTH] {
     let mut new_address = address.clone();
-    new_address[4] = value;
+    new_address[ADDRESS_WIDTH - 1] = value;
     new_address
 }
 

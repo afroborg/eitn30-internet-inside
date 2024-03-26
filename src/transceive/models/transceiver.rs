@@ -1,3 +1,4 @@
+use crate::ADDRESS_WIDTH;
 use nrf24l01::{DataRate, OperatingMode, PALevel, RXConfig, TXConfig, NRF24L01};
 
 // TODO? Abstract out these constants
@@ -14,7 +15,7 @@ impl Transceiver {
         Self { ce_pin, spi }
     }
 
-    pub fn set_receiver(&mut self, channel: u8, address: [u8; 5]) -> NRF24L01 {
+    pub fn set_receiver(&mut self, channel: u8, address: [u8; ADDRESS_WIDTH]) -> NRF24L01 {
         let config = RXConfig {
             data_rate: DATA_RATE,
             channel,
@@ -32,7 +33,7 @@ impl Transceiver {
         device
     }
 
-    pub fn set_transmitter(&mut self, channel: u8, address: [u8; 5]) -> NRF24L01 {
+    pub fn set_transmitter(&mut self, channel: u8, address: [u8; ADDRESS_WIDTH]) -> NRF24L01 {
         let config = TXConfig {
             data_rate: DATA_RATE,
             channel,

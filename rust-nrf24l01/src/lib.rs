@@ -54,7 +54,7 @@
 //!     let config = TXConfig {
 //!         channel: 108,
 //!         pa_level: PALevel::Low,
-//!         pipe0_address: *b"abcde",
+//!         pipe0_address: *b"abc",
 //!         max_retries: 3,
 //!         retry_delay: 2,
 //!         ..Default::default()
@@ -91,7 +91,7 @@
 //!     let config = RXConfig {
 //!         channel: 108,
 //!         pa_level: PALevel::Low,
-//!         pipe0_address: *b"abcde",
+//!         pipe0_address: *b"abc",
 //!         ..Default::default()
 //!     };
 //!     let mut device = NRF24L01::new(25, 0).unwrap();
@@ -159,7 +159,7 @@ impl Default for PALevel {
     }
 }
 
-const ADDRESS_WIDTH: usize = 5;
+const ADDRESS_WIDTH: usize = 3;
 
 /// Receiver mode configuration
 #[derive(Debug, Default)]
@@ -772,7 +772,7 @@ mod tests {
             channel: 108,
             data_rate: DataRate::R250Kbps,
             pa_level: PALevel::Low,
-            pipe0_address: *b"rxabb",
+            pipe0_address: *b"rxa",
             ..Default::default()
         };
         rx_conf.pipe0_address.reverse();

@@ -4,13 +4,15 @@ base_channel = 108
 mobile_address = 1
 mobile_channel = 116
 
+delay = 20
+
 run-mobile:
 	sudo ./eitn30-internet-inside \
 		--receiver-address 		$(base_address) \
 		--transmitter-address 	$(mobile_address) \
 		--receiver-channel 		$(mobile_channel) \
 		--transmitter-channel 	$(base_channel) \
-		--delay 				20
+		--delay 				$(delay)
 run-base:
 	sudo ./eitn30-internet-inside \
 		--receiver-address 		$(mobile_address) \
@@ -19,4 +21,4 @@ run-base:
 		--transmitter-channel 	$(mobile_channel) \
 		--forward 				eth0 \
 		--forward 				wlan0 \
-		--delay					20
+		--delay					$(delay)

@@ -1,3 +1,4 @@
+use crate::ADDRESS_WIDTH;
 use nrf24l01::NRF24L01;
 // use std::future;
 
@@ -8,7 +9,7 @@ pub struct Receiver {
 }
 
 impl Receiver {
-    pub fn new(ce_pin: u64, spi: u8, channel: u8, address: [u8; 5]) -> Self {
+    pub fn new(ce_pin: u64, spi: u8, channel: u8, address: [u8; ADDRESS_WIDTH]) -> Self {
         let device = Transceiver::new(ce_pin, spi).set_receiver(channel, address);
 
         Self { device }

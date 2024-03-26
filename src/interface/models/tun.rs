@@ -7,7 +7,6 @@ pub fn new(interface_name: &str, address: u8) -> (TunReader, TunWriter) {
     tun_config
         .address((10, 0, 0, address))
         .netmask((255, 255, 255, 0))
-        .mtu(65535)
         .name(interface_name)
         .up();
 
