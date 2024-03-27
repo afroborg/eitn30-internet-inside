@@ -1,4 +1,5 @@
 mod iptable;
+pub mod route;
 
 use std::process::Command;
 
@@ -48,10 +49,10 @@ pub fn apply(tun_interface_name: &str, forwards: &[String]) {
 fn set_ip_forward(enable: bool) {
     Command::new("sh")
         .arg("-c")
-        .arg(format!(
-            "echo {} > /proc/sys/net/ipv4/ip_forward",
-            if enable { "1" } else { "0" }
-        ))
+        .arg("echo")
+        .arg(if enable { "1" } else { "0" })
+        .arg(">")
+        .arg("/proc/sys/net/ipv4/ip_forward")
         .output()
         .expect(&format!(
             "Failed to {} IP forwarding",

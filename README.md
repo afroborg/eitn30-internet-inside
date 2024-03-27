@@ -1,67 +1,80 @@
 # EITN30 - Internet Inside
 
-## Components
-
-The following components are used in the project:
-
-- Raspberry Pi 5 ([Pinout](https://pinout.xyz/))
-- nRF24L01+ 2.4 GHz Transciever ([Datasheet](https://www.sparkfun.com/datasheets/Components/SMD/nRF24L01Pluss_Preliminary_Product_Specification_v1_0.pdf))
-
 ## Goal
 
 The goal with the project is create an network interface where IP packets can be sent concurrently between the mobile unit and the base station, with Enhanced ShockBurst™ packets (see the datasheet):
 
 ```bash
-ping –I MyG –c 3 8.8.8.8
+ping –I longge –c 3 8.8.8.8
 ```
-
-<!-- TODO: Change from MyG to whatever we call our interface -->
 
 where:
 
 - `-I <interface>` is either the interface name or address
 - `-c <count>` stops after `<count>` replies
 
+For our individual goals, see the [individual goals markdown file](/individual-goals.md).
+
 ## Quickstart
 
 The following dependencies are needed:
 
-- <https://github.com/cross-rs/cross>
-- <https://github.com/meh/rust-tun>
 - <https://www.gnu.org/software/make/>
+- <https://github.com/cross-rs/cross>
 
-First, build the library for the `nRF24l01` network card:
+And the following programs are needed:
+
+- [Docker](https://www.docker.com/) (on the development machine)
+- [Tailscale](https://tailscale.com/) (on both Pis)
+
+### Library
+
+The library for the `nRF24l01+` network card is a modified version of [an existing Rust library](https://crates.io/crates/nrf24l01), and must therefore be built locally:
 
 ```bash
 cd rust-nrf24l01  # Move to the library directory
 cargo build       # Build the library
 ```
 
-The project is built using `cross` for the `aarch64-unknown-linux-gnu` with the following shell script. This requires that docker is installed and running.
+### Build and deploy
+
+The project code is written in Rust, and is built using `cross` for the `aarch64-unknown-linux-gnu` architecture. Make sure that docker is installed and running. Build and deploy the project by running the following commands from the root directory:
 
 ```bash
 make build
+
+make deploy-mobile  # To deploy only to the mobile unit
+make deploy-base    # To deploy only to the base station
+make deploy         # To deploy to both units
 ```
 
-<!-- TODO: Update the deploy description when a more general deploy script is created -->
+### SSH
 
-To deploy the project to the `inutiXX` Pi in the lab, run the following shell script:
-
-```bash
-make deploy-mobile  # To deploy to the mobile unit
-make deploy-base    # To deploy to the base station
-```
-
-SSH into a Raspberry Pi by running:
+For SSH to work both in the lab, and at home, we use [tailscale](https://tailscale.com/). To SSH into a Raspberry Pi, the correct SSH keys are needed. Then run:
 
 ```bash
 make connect-mobile  # To connect to the mobile unit
 make connect-base    # To connect to the base station
 ```
 
-And run the script from the `eitn30` directory:
+### PI setup
 
-<!-- TODO: Change script when both PIs communicate with eachother -->
+- Enable SPI bus 0 and 1 with 1 CS pin.
+- Add a service file called `longge.service`, corresponding to the content from either the file `deploy/longge-base.service` or `deploy/longge-mobile.service`, depending on what unit is being configured. Then run:
+
+```bash
+sudo systemctl daemon-reload          # To read in the new service file
+sudo systemctl enable longge.service  # To enable autostart
+```
+
+The service should now start automatically on boot. To start the service manually and check that it is working, you can run:
+
+```bash
+sudo systemctl start longge.service   # To start the service
+sudo systemctl status longge.service  # To check the status
+```
+
+This will run the `eitn30-internet-inside` script from the `eitn30` directory. The script can also be tested manually by running:
 
 ```bash
 cd eitn30        # To move to the eitn30 directory
@@ -71,13 +84,26 @@ make run-base    # On the base station
 
 ### Development
 
-When the script is running, the network information can be viewed by running:
+CI/CD is as simple as rebuilding and redeploying the code!
+
+```bash
+make build deploy
+```
+
+To monitor the network traffic on the longge interface, run the following command on one of the PIs:
 
 ```bash
 sudo tcpdump -i longge # add dst 10.0.0.<transmitter_address> to see only received packages, and src 10.0.0.<receiver_address> to see only sent packages
 ```
 
 ## Devices
+
+The following components are used in the project:
+
+- Raspberry Pi 5 ([Pinout](https://pinout.xyz/))
+- nRF24L01+ 2.4 GHz Transciever ([Datasheet](https://www.sparkfun.com/datasheets/Components/SMD/nRF24L01Pluss_Preliminary_Product_Specification_v1_0.pdf))
+
+The transcievers are connected to each Pi as follows:
 
 <center>
 
@@ -87,5 +113,3 @@ sudo tcpdump -i longge # add dst 10.0.0.<transmitter_address> to see only receiv
 | Receiver     | 1       | 0          | 2             | 17      | Bottom                                |
 
 </center>
-
-## TODO?

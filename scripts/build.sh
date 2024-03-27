@@ -1,4 +1,4 @@
-# /bin/bash -e
+#!/bin/bash -e
 
 readonly TARGET=aarch64-unknown-linux-gnu
 
