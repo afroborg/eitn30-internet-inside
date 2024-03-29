@@ -15,6 +15,17 @@ impl Receiver {
         Self { device }
     }
 
+    /// Receive data from the device
+    ///
+    /// # Arguments
+    ///
+    /// * `buf` - The buffer to receive the data into
+    /// * `end` - The end of the buffer
+    ///
+    /// # Returns
+    ///
+    /// The number of bytes received
+    /// or an error message if no data is available
     pub fn receive(&mut self, buf: &mut [u8; 4096], end: usize) -> Result<usize, String> {
         match self.device.data_available() {
             Ok(true) => {

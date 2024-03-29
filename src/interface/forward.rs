@@ -1,10 +1,19 @@
-mod iptable;
-pub mod route;
-
 use std::process::Command;
 
-use iptable::IpTableEntry;
+use super::iptable::IpTableEntry;
 
+/// Apply IP forwarding rules
+///
+/// # Arguments
+///
+/// * `tun_interface_name` - The name of the TUN interface
+/// * `forwards` - A list of interface names to forward packets to
+///
+/// # Panics
+///
+/// This function will panic if it fails to apply the IP forwarding rules
+/// or if it fails to remove the IP forwarding rules when the program is
+/// interrupted
 pub fn apply(tun_interface_name: &str, forwards: &[String]) {
     println!("Applying IP forwarding rules");
 
@@ -14,11 +23,15 @@ pub fn apply(tun_interface_name: &str, forwards: &[String]) {
         .iter()
         .flat_map(|forward| {
             vec![
+                // Allow forwarding from tun interface to forward interface(s)
+                // for packets that are NEW (i.e. requests)
                 IpTableEntry::new("filter", "FORWARD")
                     .in_iterface(tun_interface_name)
                     .out_interface(&forward)
                     .jump("ACCEPT")
                     .apply(),
+                // Allow forwarding from forward interface(s) to tun interface
+                // for packets that are RELATED or ESTABLISHED (i.e. responses)
                 IpTableEntry::new("filter", "FORWARD")
                     .in_iterface(&forward)
                     .out_interface(tun_interface_name)
@@ -26,6 +39,9 @@ pub fn apply(tun_interface_name: &str, forwards: &[String]) {
                     .state("RELATED,ESTABLISHED")
                     .jump("ACCEPT")
                     .apply(),
+                // Masquerade packets from forward interface(s)
+                // allows the packets to be routed back to the tun interface
+                // and then to the original source
                 IpTableEntry::new("nat", "POSTROUTING")
                     .out_interface(&forward)
                     .jump("MASQUERADE")
@@ -34,6 +50,7 @@ pub fn apply(tun_interface_name: &str, forwards: &[String]) {
         })
         .collect::<Vec<_>>();
 
+    // Remove IP forwarding rules when the program is interrupted
     ctrlc::set_handler(move || {
         set_ip_forward(false);
 
@@ -46,6 +63,15 @@ pub fn apply(tun_interface_name: &str, forwards: &[String]) {
     .expect("Error setting Ctrl-C handler");
 }
 
+/// Enable or disable IP forwarding
+///
+/// # Arguments
+///
+/// * `enable` - A boolean indicating if IP forwarding should be enabled
+///
+/// # Panics
+///
+/// This function will panic if it fails to enable or disable IP forwarding
 fn set_ip_forward(enable: bool) {
     Command::new("sh")
         .arg("-c")

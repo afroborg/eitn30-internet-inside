@@ -18,6 +18,9 @@ tun = "0.6.1"
 [package.metadata.cross.build]
 default-target = "aarch64-unknown-linux-gnu"
 
+[workspace]
+exclude = ["rust-nrf24l01"]
+
 [profile.release]
 opt-level = 3
 debug = false

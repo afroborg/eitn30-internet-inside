@@ -8,6 +8,7 @@ use transceive::{Receiver, Transmitter};
 mod cli;
 mod interface;
 mod transceive;
+mod utils;
 
 const TRANSMITTER_GPIO: u64 = 7;
 const TRANSMITTER_SPI_CHANNEL: u8 = 0;
@@ -17,13 +18,12 @@ const TUN_INTERFACE_NAME: &str = "longge";
 const ADDRESS_WIDTH: usize = 3;
 
 fn main() {
-    println!("Testing!!!");
     let args = cli::Args::parse();
 
     let address = *b"ad0";
 
-    let receiver_address = change_last_byte(&address, args.receiver_address);
-    let transmitter_address = change_last_byte(&address, args.transmitter_address);
+    let receiver_address = utils::change_last_byte(&address, args.receiver_address);
+    let transmitter_address = utils::change_last_byte(&address, args.transmitter_address);
 
     let (mut tun_reader, mut tun_writer) = tun::new(TUN_INTERFACE_NAME, args.transmitter_address);
 
@@ -33,7 +33,7 @@ fn main() {
         interface::forward::apply(TUN_INTERFACE_NAME, &forward);
     } else {
         println!("Running in mobile mode");
-        interface::forward::route::apply(TUN_INTERFACE_NAME, args.transmitter_address);
+        interface::routing::apply(TUN_INTERFACE_NAME, args.transmitter_address);
     }
 
     let mut tx = Transmitter::new(
@@ -55,12 +55,6 @@ fn main() {
 
     tx_thread.join().unwrap();
     rx_thread.join().unwrap();
-}
-
-fn change_last_byte(address: &[u8; ADDRESS_WIDTH], value: u8) -> [u8; ADDRESS_WIDTH] {
-    let mut new_address = address.clone();
-    new_address[ADDRESS_WIDTH - 1] = value;
-    new_address
 }
 
 fn tx_main(tx: &mut Transmitter, tun_reader: &mut TunReader, delay: u64) {

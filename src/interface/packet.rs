@@ -1,5 +1,14 @@
 use packet::ip::Packet;
 
+/// Check if a buffer contains a valid IP packet
+///
+/// # Arguments
+///
+/// * `buf` - A buffer containing an IP packet
+///
+/// # Returns
+///
+/// A boolean indicating if the buffer contains a valid IP packet
 pub fn is_valid(buf: &[u8]) -> bool {
     match Packet::new(buf) {
         Ok(packet) => {
