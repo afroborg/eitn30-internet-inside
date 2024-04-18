@@ -1,4 +1,4 @@
-use std::{fs, process::Command};
+use std::fs;
 
 use super::iptable::IpTableEntry;
 

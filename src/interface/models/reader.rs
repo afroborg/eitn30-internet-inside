@@ -3,6 +3,7 @@ use tun::platform::posix::Reader as PosixReader;
 
 pub struct TunReader {
     reader: PosixReader,
+    // TODO: 1596 instead of 4096. And check why we even have +96 instead of some other number
     buf: [u8; 4096],
 }
 

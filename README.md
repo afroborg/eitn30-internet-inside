@@ -93,7 +93,10 @@ make build deploy
 To monitor the network traffic on the longge interface, run the following command on one of the PIs:
 
 ```bash
-sudo tcpdump -i longge # add dst 10.0.0.<transmitter_address> to see only received packages, and src 10.0.0.<receiver_address> to see only sent packages
+sudo tcpdump -i longge  # add dst 10.0.0.<transmitter_address> to see only received packages, and src 10.0.0.<receiver_address> to see only sent packages
+sudo iptables -S        # to see the iptables rules
+ip addr                 # to show all interfaces
+netstat -r              Ö# to show the routing table
 ```
 
 ## Devices
