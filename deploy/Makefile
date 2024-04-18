@@ -4,7 +4,7 @@ base_channel = 108
 mobile_address = 1
 mobile_channel = 116
 
-delay = 20
+delay = 5
 
 run-mobile:
 	sudo ./eitn30-internet-inside \

@@ -17,10 +17,15 @@ const RECEIVER_SPI_CHANNEL: u8 = 1;
 const TUN_INTERFACE_NAME: &str = "longge";
 const ADDRESS_WIDTH: usize = 3;
 
+const PACKET_SIZE: usize = 32;
+const QUEUE_SIZE: usize = 2;
+
+const BUFFER_SIZE: usize = 4096;
+
 fn main() {
     let args = cli::Args::parse();
 
-    let address = *b"ad0";
+    let address = *b"ad0"; // In hexadecimal: 61 64 30
 
     let receiver_address = utils::change_last_byte(&address, args.receiver_address);
     let transmitter_address = utils::change_last_byte(&address, args.transmitter_address);
@@ -64,12 +69,15 @@ fn tx_main(tx: &mut Transmitter, tun_reader: &mut TunReader, delay: u64) {
         let data = tun_reader.read();
 
         if data.is_empty() {
-            sleep(Duration::from_micros(delay));
             continue;
         }
 
-        data.chunks(32).for_each(|chunk| {
-            if let Err(e) = tx.push(&chunk).and(tx.transmit(10)) {
+        data.chunks(PACKET_SIZE * QUEUE_SIZE).for_each(|queue| {
+            queue.chunks(PACKET_SIZE).for_each(|pkt| {
+                tx.push(&pkt).unwrap();
+            });
+
+            if let Err(e) = tx.transmit(10) {
                 println!("Error: {}", e);
             };
 
@@ -81,12 +89,12 @@ fn tx_main(tx: &mut Transmitter, tun_reader: &mut TunReader, delay: u64) {
 fn rx_main(rx: &mut Receiver, tun_writer: &mut TunWriter, delay: u64) {
     println!("Receiver thread started");
 
-    let mut buf = [0u8; 4096];
+    let mut buf = [0u8; BUFFER_SIZE];
     let mut end = 0;
 
     loop {
         // TODO: look into this
-        if end + 96 >= 4096 {
+        if end + 96 >= BUFFER_SIZE {
             end = 0;
         }
 
