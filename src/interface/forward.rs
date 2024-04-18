@@ -1,4 +1,4 @@
-use std::process::Command;
+use std::{fs, process::Command};
 
 use super::iptable::IpTableEntry;
 
@@ -73,15 +73,17 @@ pub fn apply(tun_interface_name: &str, forwards: &[String]) {
 ///
 /// This function will panic if it fails to enable or disable IP forwarding
 fn set_ip_forward(enable: bool) {
-    Command::new("sh")
-        .arg("-c")
-        .arg("echo")
-        .arg(if enable { "1" } else { "0" })
-        .arg(">")
-        .arg("/proc/sys/net/ipv4/ip_forward")
-        .output()
-        .expect(&format!(
-            "Failed to {} IP forwarding",
-            if enable { "enable" } else { "disable" }
-        ));
+    println!(
+        "{} IP forwarding",
+        if enable { "Enabling" } else { "Disabling" }
+    );
+
+    fs::write(
+        "/proc/sys/net/ipv4/ip_forward",
+        if enable { "1" } else { "0" },
+    )
+    .expect(&format!(
+        "Failed to {} IP forwarding",
+        if enable { "enable" } else { "disable" }
+    ));
 }

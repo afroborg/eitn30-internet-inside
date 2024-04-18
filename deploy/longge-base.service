@@ -5,6 +5,7 @@ After=multi-user.target
 [Service]
 WorkingDirectory=/home/pi/eitn30
 ExecStart=/usr/bin/make run-base
+KillSignal=SIGINT
 
 [Install]
 WantedBy=multi-user.target
