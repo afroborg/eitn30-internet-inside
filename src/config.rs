@@ -15,8 +15,8 @@ pub const BUFFER_SIZE: usize = 4096;
 
 // -- NRF24L01 packet config -- //
 pub const DATA_RATE: DataRate = DataRate::R2Mbps;
-pub const PA_LEVEL: PALevel = PALevel::Min;
+pub const PA_LEVEL: PALevel = PALevel::High;
 pub const ADDRESS_WIDTH: usize = 3;
 pub const PACKET_RETRY_DELAY: u8 = 2;
-pub const PACKET_MAX_RETRIES: u8 = 2;
+pub const PACKET_MAX_RETRIES: u8 = 15;
 pub const PACKET_SIZE: usize = 32;

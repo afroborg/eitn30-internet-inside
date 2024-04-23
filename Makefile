@@ -2,7 +2,7 @@ base_number = 06
 mobile_number = 24
 
 base_ip = 100.124.31.24
-mobile_ip = 192.168.0.109
+mobile_ip = 100.65.157.26
 
 connect-base:
 	ssh -i ~/.ssh/eitn30-pi pi@$(base_ip)

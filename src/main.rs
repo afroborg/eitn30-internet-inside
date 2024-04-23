@@ -83,8 +83,7 @@ fn rx_main(rx: &mut Receiver, tun_writer: &mut TunWriter, delay: u64) {
     let mut end = 0;
 
     loop {
-        // TODO: look into this
-        if end + 96 >= BUFFER_SIZE {
+        if (end + PACKET_SIZE * QUEUE_SIZE) >= BUFFER_SIZE {
             end = 0;
         }
 
@@ -96,6 +95,7 @@ fn rx_main(rx: &mut Receiver, tun_writer: &mut TunWriter, delay: u64) {
             }
 
             tun_writer.write(&buf[..end].to_vec());
+
             end = 0;
         };
 

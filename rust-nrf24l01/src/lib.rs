@@ -483,11 +483,11 @@ impl NRF24L01 {
     pub fn configure(&mut self, mode: &OperatingMode) -> io::Result<()> {
         self.ce.down()?;
         // auto acknowlegement
-        self.write_register(EN_AA, 0b0011_1111)?;
-        // dynamic payload and payload with ACK
-        self.write_register(DYNPD, 0b0011_1111)?;
-        self.write_register(FEATURE, 0b0000_0110)?;
-        // shrink address width to 3 bytes
+        self.write_register(EN_AA, 0b0011_1111)?; // 0b0011_1111 to turn on auto ACK for all pipes, 0b0000_0000 to turn off
+                                                  // dynamic payload and payload with ACK
+        self.write_register(DYNPD, 0b0011_1111)?; // 0b0011_1111 to turn on dynamic payload for all pipes, 0b0000_0000 to turn off
+        self.write_register(FEATURE, 0b0000_0110)?; // Ending with 110 enables Dynamic payload and automatic ACK. Ending with 001 does the opposite
+                                                    // shrink address width to 3 bytes
         self.write_register(SETUP_AW, 0b0000_0001)?;
 
         // Mode specific configuration

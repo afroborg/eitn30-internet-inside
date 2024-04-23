@@ -29,12 +29,19 @@ And the following programs are needed:
 
 ### Library
 
-The library for the `nRF24l01+` network card is a modified version of [an existing Rust library](https://crates.io/crates/nrf24l01), and must therefore be built locally:
+The library for the `nRF24l01+` network card is a modified version of [an existing Rust library](https://crates.io/crates/nrf24l01). The following commands should not be needed, however they can sometimes fix a lot of problems if the project is not build correctly:
 
 ```bash
+cargo clean       # Clean the project
+
 cd rust-nrf24l01  # Move to the library directory
-cargo build       # Build the library
+cargo clean       # Clean the library
+
+cd ..             # Move back to the root directory
+cargo build       # Build the project
 ```
+
+If that doesn't work either, the library may need to be build after the second `cargo clean` command.
 
 ### Build and deploy
 
@@ -96,7 +103,7 @@ To monitor the network traffic on the longge interface, run the following comman
 sudo tcpdump -i longge  # add dst 10.0.0.<transmitter_address> to see only received packages, and src 10.0.0.<receiver_address> to see only sent packages
 sudo iptables -S        # to see the iptables rules
 ip addr                 # to show all interfaces
-netstat -r              Ö# to show the routing table
+netstat -r              # to show the routing table
 ```
 
 ## Devices

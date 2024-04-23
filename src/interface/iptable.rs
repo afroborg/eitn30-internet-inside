@@ -81,7 +81,10 @@ impl IpTableEntry {
     }
 
     pub fn drop(&self) {
-        let ipt = iptables::new(false).expect("Failed to initialize iptables");
+        let Ok(ipt) = iptables::new(false) else {
+            println!("Failed to drop iptables");
+            return;
+        };
 
         let rule = self.rule();
 

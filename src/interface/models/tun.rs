@@ -12,6 +12,7 @@ pub fn new(interface_name: &str, address: u8) -> (TunReader, TunWriter) {
         .up();
 
     let device = tun::create(&tun_config).unwrap();
+
     let (reader, writer) = device.split();
 
     (TunReader::new(reader), TunWriter::new(writer))

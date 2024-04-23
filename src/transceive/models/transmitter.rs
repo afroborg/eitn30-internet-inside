@@ -57,7 +57,7 @@ impl Transmitter {
 
                 self.device
                     .flush_output()
-                    .map_err(|err| format!("{:?}", err))?;
+                    .map_err(|err| format!("Failed to flush output: {:?}", err))?;
 
                 Err(format!("Destination unreachable: {:?}", err))
             }
