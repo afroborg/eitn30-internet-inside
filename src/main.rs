@@ -1,4 +1,5 @@
 use clap::Parser;
+use config::*;
 use interface::{tun, TunReader, TunWriter};
 use std::thread;
 use std::thread::sleep;
@@ -6,21 +7,10 @@ use std::time::Duration;
 use transceive::{Receiver, Transmitter};
 
 mod cli;
+mod config;
 mod interface;
 mod transceive;
 mod utils;
-
-const TRANSMITTER_GPIO: u64 = 7;
-const TRANSMITTER_SPI_CHANNEL: u8 = 0;
-const RECEIVER_GPIO: u64 = 17;
-const RECEIVER_SPI_CHANNEL: u8 = 1;
-const TUN_INTERFACE_NAME: &str = "longge";
-const ADDRESS_WIDTH: usize = 3;
-
-const PACKET_SIZE: usize = 32;
-const QUEUE_SIZE: usize = 2;
-
-const BUFFER_SIZE: usize = 4096;
 
 fn main() {
     let args = cli::Args::parse();

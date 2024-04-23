@@ -1,4 +1,4 @@
-use crate::ADDRESS_WIDTH;
+use crate::config::ADDRESS_WIDTH;
 
 /// Change the last byte of an address
 ///

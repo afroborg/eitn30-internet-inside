@@ -1,8 +1,5 @@
-use crate::ADDRESS_WIDTH;
-use nrf24l01::{DataRate, OperatingMode, PALevel, RXConfig, TXConfig, NRF24L01};
-
-const DATA_RATE: DataRate = DataRate::R2Mbps;
-const PA_LEVEL: PALevel = PALevel::Min;
+use crate::config::*;
+use nrf24l01::{OperatingMode, RXConfig, TXConfig, NRF24L01};
 
 pub struct Transceiver {
     ce_pin: u64,
@@ -58,8 +55,8 @@ impl Transceiver {
             channel,
             pa_level: PA_LEVEL,
             pipe0_address: address,
-            retry_delay: 2,
-            max_retries: 15,
+            retry_delay: PACKET_RETRY_DELAY,
+            max_retries: PACKET_MAX_RETRIES,
             ..Default::default()
         };
 

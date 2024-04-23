@@ -25,7 +25,7 @@ The following dependencies are needed:
 And the following programs are needed:
 
 - [Docker](https://www.docker.com/) (on the development machine)
-- [Tailscale](https://tailscale.com/) (on both Pis)
+- [Tailscale](https://tailscale.com/) (on both Pis and the development machine)
 
 ### Library
 

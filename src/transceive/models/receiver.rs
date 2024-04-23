@@ -1,6 +1,5 @@
-use crate::ADDRESS_WIDTH;
+use crate::config::ADDRESS_WIDTH;
 use nrf24l01::NRF24L01;
-// use std::future;
 
 use super::transceiver::Transceiver;
 
