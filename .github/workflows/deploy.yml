@@ -38,6 +38,7 @@ jobs:
         
   deploy:
     name: Deploy on both Raspberry PIs
+    needs: build
     runs-on: ubuntu-latest
 
     strategy:
