@@ -23,11 +23,11 @@ impl TunReader {
                     return &[];
                 }
 
-                return &self.buf[..size];
+                &self.buf[..size]
             }
             Err(e) => {
                 eprintln!("Error reading from tun device: {}", e);
-                return &[];
+                &[]
             }
         }
     }

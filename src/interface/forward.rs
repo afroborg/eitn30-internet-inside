@@ -27,13 +27,13 @@ pub fn apply(tun_interface_name: &str, forwards: &[String]) {
                 // for packets that are NEW (i.e. requests)
                 IpTableEntry::new("filter", "FORWARD")
                     .in_iterface(tun_interface_name)
-                    .out_interface(&forward)
+                    .out_interface(forward)
                     .jump("ACCEPT")
                     .apply(),
                 // Allow forwarding from forward interface(s) to tun interface
                 // for packets that are RELATED or ESTABLISHED (i.e. responses)
                 IpTableEntry::new("filter", "FORWARD")
-                    .in_iterface(&forward)
+                    .in_iterface(forward)
                     .out_interface(tun_interface_name)
                     .matching("state")
                     .state("RELATED,ESTABLISHED")
@@ -43,7 +43,7 @@ pub fn apply(tun_interface_name: &str, forwards: &[String]) {
                 // allows the packets to be routed back to the tun interface
                 // and then to the original source
                 IpTableEntry::new("nat", "POSTROUTING")
-                    .out_interface(&forward)
+                    .out_interface(forward)
                     .jump("MASQUERADE")
                     .apply(),
             ]
@@ -82,8 +82,10 @@ fn set_ip_forward(enable: bool) {
         "/proc/sys/net/ipv4/ip_forward",
         if enable { "1" } else { "0" },
     )
-    .expect(&format!(
-        "Failed to {} IP forwarding",
-        if enable { "enable" } else { "disable" }
-    ));
+    .unwrap_or_else(|_| {
+        panic!(
+            "Failed to {} IP forwarding",
+            if enable { "enable" } else { "disable" }
+        )
+    });
 }

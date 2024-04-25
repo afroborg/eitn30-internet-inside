@@ -57,7 +57,6 @@ impl Transceiver {
             pipe0_address: address,
             retry_delay: PACKET_RETRY_DELAY,
             max_retries: PACKET_MAX_RETRIES,
-            ..Default::default()
         };
 
         let mut device = NRF24L01::new(self.ce_pin, self.spi, 0).unwrap();

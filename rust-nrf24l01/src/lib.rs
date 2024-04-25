@@ -1,3 +1,4 @@
+#![allow(clippy::all)]
 // Copyright 2017, Romuald Texier-Marcadé <romualdtm@gmail.com>
 //
 // Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or

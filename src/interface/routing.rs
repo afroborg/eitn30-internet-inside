@@ -49,5 +49,5 @@ fn set_route_default(enable: bool, address: u8, tun_interface_name: String) {
         .arg("dev")
         .arg(tun_interface_name)
         .output()
-        .expect(&format!("Failed to {} default route", action));
+        .unwrap_or_else(|_| panic!("Failed to {} default route", action));
 }

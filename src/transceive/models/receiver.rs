@@ -34,7 +34,7 @@ impl Receiver {
                     .read_all(|packet| {
                         let start = e;
                         e += packet.len();
-                        buf[start..e].copy_from_slice(&packet);
+                        buf[start..e].copy_from_slice(packet);
                     })
                     .unwrap();
 

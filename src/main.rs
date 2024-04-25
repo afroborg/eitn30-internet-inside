@@ -48,11 +48,11 @@ fn main() {
     let tx_thread = thread::spawn(move || tx_main(&mut tx, &mut tun_reader, args.delay));
     let rx_thread = thread::spawn(move || rx_main(&mut rx, &mut tun_writer, args.delay));
 
-    tx_thread.join().unwrap();
-    rx_thread.join().unwrap();
+    tx_thread.join().expect("Transmitter thread panicked");
+    rx_thread.join().expect("Receiver thread panicked");
 }
 
-fn tx_main(tx: &mut Transmitter, tun_reader: &mut TunReader, delay: u64) {
+fn tx_main(tx: &mut Transmitter, tun_reader: &mut TunReader, delay: u64) -> ! {
     println!("Transmitter thread started");
 
     loop {
@@ -64,11 +64,11 @@ fn tx_main(tx: &mut Transmitter, tun_reader: &mut TunReader, delay: u64) {
 
         data.chunks(PACKET_SIZE * QUEUE_SIZE).for_each(|queue| {
             queue.chunks(PACKET_SIZE).for_each(|pkt| {
-                tx.push(&pkt).unwrap();
+                tx.push(pkt).ok();
             });
 
-            if let Err(e) = tx.transmit(10) {
-                println!("Error: {}", e);
+            if let Err(err) = tx.transmit(10) {
+                println!("Error: {err}");
             };
 
             sleep(Duration::from_micros(delay));
@@ -76,7 +76,7 @@ fn tx_main(tx: &mut Transmitter, tun_reader: &mut TunReader, delay: u64) {
     }
 }
 
-fn rx_main(rx: &mut Receiver, tun_writer: &mut TunWriter, delay: u64) {
+fn rx_main(rx: &mut Receiver, tun_writer: &mut TunWriter, delay: u64) -> ! {
     println!("Receiver thread started");
 
     let mut buf = [0u8; BUFFER_SIZE];
@@ -94,7 +94,7 @@ fn rx_main(rx: &mut Receiver, tun_writer: &mut TunWriter, delay: u64) {
                 continue;
             }
 
-            tun_writer.write(&buf[..end].to_vec());
+            tun_writer.write(&buf[..end]);
 
             end = 0;
         };

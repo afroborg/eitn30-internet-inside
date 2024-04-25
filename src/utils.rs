@@ -10,8 +10,8 @@ use crate::config::ADDRESS_WIDTH;
 /// # Returns
 ///
 /// The new address with the last byte changed
-pub fn change_last_byte(address: &[u8; ADDRESS_WIDTH], value: u8) -> [u8; ADDRESS_WIDTH] {
-    let mut new_address = address.clone();
+pub const fn change_last_byte(address: &[u8; ADDRESS_WIDTH], value: u8) -> [u8; ADDRESS_WIDTH] {
+    let mut new_address = *address;
     new_address[ADDRESS_WIDTH - 1] = value;
     new_address
 }
