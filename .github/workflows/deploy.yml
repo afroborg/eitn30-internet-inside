@@ -37,7 +37,7 @@ jobs:
           overwrite: true
 
   deploy:
-    name: ${{ matrix[secrets.name] }}
+    name: ${{ matrix.include.name }}
     needs: build
     runs-on: ubuntu-latest
 
