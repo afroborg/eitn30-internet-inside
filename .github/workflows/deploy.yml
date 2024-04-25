@@ -37,7 +37,7 @@ jobs:
           overwrite: true
 
   deploy:
-    name: Deploy on both Raspberry PIs
+    name: ${{ matrix[secrets.name] }}
     needs: build
     runs-on: ubuntu-latest
 
