@@ -48,8 +48,10 @@ jobs:
           # includes a new variable for each org (this is effectively a switch statement)
           - org: ts_ip_base
             ts_ip_secret: TS_IP_BASE
+            name: Deploy on base station
           - org: ts_ip_mobile
             ts_ip_secret: TS_IP_MOBILE
+            name: Deploy on mobile unit
 
     steps:
       - uses: actions/download-artifact@v4
@@ -72,12 +74,12 @@ jobs:
           mv deploy/Makefile dist/Makefile
           mv target/aarch64-unknown-linux-gnu/release/eitn30-internet-inside dist/eitn30-internet-inside
 
-      - name: Deploy to base station and mobile unit
+      - name: ${{ matrix.name }}
         uses: easingthemes/ssh-deploy@main
         with:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           ARGS: '-z -i'
-          SOURCE: dist
+          SOURCE: dist/*
           REMOTE_HOST: ${{ secrets[matrix.ts_ip_secret] }}
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
           TARGET: ${{ secrets.REMOTE_TARGET }}
