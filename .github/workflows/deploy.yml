@@ -1,0 +1,75 @@
+name: Build and deploy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build for Raspberry PI
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Prepare toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 1.62.1-x86_64-unknown-linux-gnu
+          target: aarch64-unknown-linux-gnu
+          override: true
+
+      - name: Build
+        uses: actions-rs/cargo@v1
+        with:
+          use-cross: true
+          command: build
+          args: --release --target aarch64-unknown-linux-gnu
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: eitn30-artifact
+          path: |
+            target/aarch64-unknown-linux-gnu/release/eitn30-internet-inside
+            deploy/Makefile
+          overwrite: true
+
+  deploy:
+    name: Deploy on both Raspberry PIs
+    needs: build
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        org: [ts_ip_base, ts_ip_mobile] #Array of org mnemonics to use below
+        include:
+          # includes a new variable for each org (this is effectively a switch statement)
+          - org: ts_ip_base
+            ts_ip_secret: TS_IP_BASE
+          - org: ts_ip_mobile
+            ts_ip_secret: TS_IP_MOBILE
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: eitn30-artifact
+
+      - name: Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Deploy to base station and mobile unit
+        uses: easingthemes/ssh-deploy@main
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          ARGS: '-z -i'
+          REMOTE_HOST: ${{ secrets[matrix.ts_ip_secret] }}
+          REMOTE_USER: ${{ secrets.REMOTE_USER }}
+          TARGET: ${{ secrets.REMOTE_TARGET }}
+          SCRIPT_AFTER: |
+            sudo systemctl restart longge.service > /dev/null 2>&1
