@@ -9,6 +9,7 @@ pip install -r requirements.txt
 ```
 
 Run the tests by running the `performance.py` script. The script takes the following arguments:
+
 - `<server_ip:server_port>`: The IP and port of the server to connect to.
 - `<start_bandwidth:step_bandwidth:end_bandwidth>`: The bandwidths to test. The script will test the bandwidths from `start_bandwidth` to `end_bandwidth` in steps of `step_bandwidth`.
 - `<duration>`: The duration of the test in seconds.

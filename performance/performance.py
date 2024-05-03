@@ -2,6 +2,8 @@ import sys
 import iperf3
 import datetime
 import json
+import time
+import subprocess
 
 def read_arguments():
     """
@@ -23,8 +25,10 @@ def create_client(server_ip: str, server_port: str, bandwidth: int, duration: in
     client: The iperf3 client object.
     """
 
+    iperf_path = subprocess.check_output(['which', 'iperf3']).decode('utf-8').strip()
+
     # iperf3 -c <server_ip> -u -b 100K -l 32 -t 60
-    client = iperf3.Client()                # -c, --client <arg>    run in client mode, connecting to <host>
+    client = iperf3.Client(lib_name=iperf_path)                # -c, --client <arg>    run in client mode, connecting to <host>
     client.server_hostname = server_ip      # <server_ip>
     client.port = server_port               # -p, --port <arg>      server port to connect to
     client.protocol = protocol              # -u, --udp             use UDP rather than TCP
@@ -77,6 +81,7 @@ def test_performance(client: iperf3.Client):
     print(f'  the test took      {result.seconds} seconds')
     print(f'  bandwidth (kbps)   {result.bps}')
     print(f'  jitter (ms)        {result.jitter_ms}')
+    print(f'  lost packets (%)   {result.lost_percent}')
 
 
     return extract_results(result.json)
@@ -107,8 +112,9 @@ def test_performances():
         })
 
         del client
+        time.sleep(1) # sleep for 1 second between tests to avoid overloading the server and the client
     
-    save_results(protocol, { 'server': f'{server_ip}:{server_port}', 'results': results })
+    save_results(protocol, { 'server': f'{server_ip}:{server_port}', 'duration': duration , 'results': results })
 
     print(f'')
     print(f'Performance tests completed')
