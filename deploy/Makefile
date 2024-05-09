@@ -12,7 +12,9 @@ run-mobile:
 		--transmitter-address 	$(mobile_address) \
 		--receiver-channel 		$(mobile_channel) \
 		--transmitter-channel 	$(base_channel) \
-		--delay 				$(delay)
+		--delay 				$(delay) \
+		--transmitter-gpio		7 \
+		--receiver-gpio			17
 run-base:
 	sudo ./eitn30-internet-inside \
 		--receiver-address 		$(mobile_address) \
@@ -21,4 +23,6 @@ run-base:
 		--transmitter-channel 	$(mobile_channel) \
 		--forward 				eth0 \
 		--forward 				wlan0 \
-		--delay					$(delay)
+		--delay					$(delay) \
+		--transmitter-gpio		17 \
+		--receiver-gpio			27

@@ -89,6 +89,34 @@ make run-mobile  # On the mobile unit
 make run-base    # On the base station
 ```
 
+DNS must be configured correctly to use longge together with tailscale.
+
+```bash
+sudo nvim /etc/NetworkManager/NetworkManager.conf
+```
+
+Add the following line to the file:
+
+```bash
+dns=default
+```
+
+Then run the following commands:
+
+```bash
+sudo systemctl restart NetworkManager
+sudo nvim /etc/resolv.conf
+```
+
+Add the following line to the file
+
+```bash
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+```
+
+Then reboot!
+
 ### Development
 
 CI/CD is as simple as rebuilding and redeploying the code!
@@ -97,7 +125,7 @@ CI/CD is as simple as rebuilding and redeploying the code!
 make build deploy
 ```
 
-To monitor the network traffic on the longge interface, run the following command on one of the PIs:
+To monitor the network traffic on the longge interface, run the following commands of your choice on one of the PIs:
 
 ```bash
 sudo tcpdump -i longge  # add dst 10.0.0.<transmitter_address> to see only received packages, and src 10.0.0.<receiver_address> to see only sent packages
@@ -117,9 +145,14 @@ The transcievers are connected to each Pi as follows:
 
 <center>
 
-| Device       | SPI bus | SPI device | Device Number | CE GPIO | Position (relative to `inutixx` text) |
-|--------------|---------|------------|---------------|---------|---------------------------------------|
-| Transmitter  | 0       | 0          | 1             | 7       | Top                                   |
-| Receiver     | 1       | 0          | 2             | 17      | Bottom                                |
+| inuti24 (Mobile)      | SPI bus | SPI device | Device Number | CE GPIO | Position (relative to `inuti24` text) |
+|-----------------------|---------|------------|---------------|---------|---------------------------------------|
+| Transmitter           | 0       | 0          | 1             | 7       | Top                                   |
+| Receiver              | 1       | 0          | 2             | 17      | Bottom                                |
+
+| inuti32 (Base)      | SPI bus | SPI device | Device Number | CE GPIO | Position (relative to `inuti24` text) |
+|---------------------|---------|------------|---------------|---------|---------------------------------------|
+| Transmitter         | 0       | 0          | 1             | 17       | Top                                   |
+| Receiver            | 1       | 0          | 2             | 7      | Bottom                                |
 
 </center>

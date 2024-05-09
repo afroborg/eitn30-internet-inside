@@ -8,14 +8,14 @@ readonly MAKEFILE_PATH=deploy/Makefile
 readonly SERVICE_NAME=longge.service
 
 # Provided by tailscale
-readonly BASE_IP="100.124.31.24"
+readonly BASE_IP="100.93.60.11"
 readonly MOBILE_IP="100.65.157.26"
 
 while getopts "n:" opt; do
   case ${opt} in
     n )
       PI_NUMBER=${OPTARG}
-      if [ ${OPTARG} = "06" ]
+      if [ ${OPTARG} = "32" ]
       then
         PI_IP=${BASE_IP}
       elif [ ${OPTARG} = "24" ]

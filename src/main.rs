@@ -32,14 +32,14 @@ fn main() {
     }
 
     let mut tx = Transmitter::new(
-        TRANSMITTER_GPIO,
+        args.transmitter_gpio,
         TRANSMITTER_SPI_CHANNEL,
         args.transmitter_channel,
         transmitter_address,
     );
 
     let mut rx = Receiver::new(
-        RECEIVER_GPIO,
+        args.receiver_gpio,
         RECEIVER_SPI_CHANNEL,
         args.receiver_channel,
         receiver_address,
@@ -64,7 +64,7 @@ fn tx_main(tx: &mut Transmitter, tun_reader: &mut TunReader, delay: u64) -> ! {
 
         data.chunks(PACKET_SIZE * QUEUE_SIZE).for_each(|queue| {
             queue.chunks(PACKET_SIZE).for_each(|pkt| {
-                tx.push(pkt).ok();
+                tx.push(pkt).unwrap();
             });
 
             if let Err(err) = tx.transmit(10) {

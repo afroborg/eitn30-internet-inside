@@ -4,12 +4,10 @@ use nrf24l01::{DataRate, PALevel};
 pub const TUN_INTERFACE_NAME: &str = "longge";
 
 // -- Transmitter config -- //
-pub const TRANSMITTER_GPIO: u64 = 7;
 pub const TRANSMITTER_SPI_CHANNEL: u8 = 0;
 pub const QUEUE_SIZE: usize = 3;
 
 // -- Receiver config -- //
-pub const RECEIVER_GPIO: u64 = 17;
 pub const RECEIVER_SPI_CHANNEL: u8 = 1;
 pub const BUFFER_SIZE: usize = 4096;
 

@@ -1,7 +1,7 @@
-base_number = 06
+base_number = 32
 mobile_number = 24
 
-base_ip = 100.124.31.24
+base_ip = 100.93.60.11
 mobile_ip = 100.65.157.26
 
 connect-base:
