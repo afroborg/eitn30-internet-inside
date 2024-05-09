@@ -23,10 +23,6 @@ pub struct Args {
     #[arg(short, long, default_value = None)]
     pub forward: Option<Vec<String>>,
 
-    /// Delay between each transmission
-    #[arg(short, long, default_value_t = 20, value_parser=clap::value_parser!(u64))]
-    pub delay: u64,
-
     /// GPIO pin for the transmitter
     #[arg(short, long, default_value_t = 7, value_parser=clap::value_parser!(u64))]
     pub transmitter_gpio: u64,

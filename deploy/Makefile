@@ -4,7 +4,6 @@ base_channel = 108
 mobile_address = 1
 mobile_channel = 116
 
-delay = 5
 longge_default = true
 
 run-mobile:
@@ -13,7 +12,6 @@ run-mobile:
 		--transmitter-address 	$(mobile_address) \
 		--receiver-channel 		$(mobile_channel) \
 		--transmitter-channel 	$(base_channel) \
-		--delay 				$(delay) \
 		--transmitter-gpio		7 \
 		--receiver-gpio			17 \
 		--longge-default		$(longge_default)
@@ -25,6 +23,5 @@ run-base:
 		--transmitter-channel 	$(mobile_channel) \
 		--forward 				eth0 \
 		--forward 				wlan0 \
-		--delay					$(delay) \
 		--transmitter-gpio		17 \
 		--receiver-gpio			27

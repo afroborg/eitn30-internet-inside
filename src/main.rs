@@ -2,8 +2,6 @@ use clap::Parser;
 use config::*;
 use interface::{tun, TunReader, TunWriter};
 use std::thread;
-use std::thread::sleep;
-use std::time::Duration;
 use transceive::{Receiver, Transmitter};
 use std::sync::mpsc::{channel, Receiver as ChannelReceiver, Sender as ChannelSender};
 
@@ -51,19 +49,19 @@ fn main() {
         receiver_address,
     );
 
-    let tx_thread = thread::spawn(move || tx_main(&mut tx, tun_reader, args.delay));
-    let rx_thread = thread::spawn(move || rx_main(&mut rx, tun_writer, args.delay));
+    let tx_thread = thread::spawn(move || tx_main(&mut tx, tun_reader));
+    let rx_thread = thread::spawn(move || rx_main(&mut rx, tun_writer));
 
     tx_thread.join().expect("Transmitter thread panicked");
     rx_thread.join().expect("Receiver thread panicked");
 }
 
-fn tx_main(tx: &mut Transmitter, mut tun_reader: TunReader, delay: u64) -> ! {
+fn tx_main(tx: &mut Transmitter, mut tun_reader: TunReader) -> ! {
     println!("Transmitter thread started");
 
-    let (mut reader_queue, tx_queue) = channel::<Vec<u8>>();
+    let (reader_queue, tx_queue) = channel::<Vec<u8>>();
 
-    thread::spawn(move || reader_main(&mut reader_queue, &mut tun_reader, delay));
+    thread::spawn(move || reader_main(&reader_queue, &mut tun_reader));
 
     loop {
         let data = tx_queue.recv().unwrap();
@@ -76,14 +74,13 @@ fn tx_main(tx: &mut Transmitter, mut tun_reader: TunReader, delay: u64) -> ! {
             if let Err(err) = tx.transmit(10) {
                 println!("Error: {err}");
             };
-
-            sleep(Duration::from_micros(delay));
         });
     }
 }
 
-fn reader_main(queue: &mut ChannelSender<Vec<u8>>, tun_reader: &mut TunReader, delay: u64) -> ! {
+fn reader_main(queue: &ChannelSender<Vec<u8>>, tun_reader: &mut TunReader) -> ! {
     println!("Reader thread started");
+    
     loop {
         let data = tun_reader.read();
 
@@ -92,20 +89,18 @@ fn reader_main(queue: &mut ChannelSender<Vec<u8>>, tun_reader: &mut TunReader, d
         }
 
         queue.send(data.to_vec()).unwrap();
-
-        sleep(Duration::from_micros(delay));
     }
 }
 
-fn rx_main(rx: &mut Receiver, mut tun_writer: TunWriter, delay: u64) -> ! {
+fn rx_main(rx: &mut Receiver, mut tun_writer: TunWriter) -> ! {
     println!("Receiver thread started");
 
     let mut buf = [0u8; BUFFER_SIZE];
     let mut end = 0;
 
-    let (rx_queue, mut writer_queue) = channel::<Vec<u8>>();
+    let (rx_queue, writer_queue) = channel::<Vec<u8>>();
 
-    thread::spawn(move || writer_main(&mut writer_queue, &mut tun_writer));
+    thread::spawn(move || writer_main(&writer_queue, &mut tun_writer));
 
     loop {
         if (end + PACKET_SIZE * QUEUE_SIZE) >= BUFFER_SIZE {
@@ -125,15 +120,13 @@ fn rx_main(rx: &mut Receiver, mut tun_writer: TunWriter, delay: u64) -> ! {
 
             end = 0;
         };
-
-        sleep(Duration::from_micros(delay / 2));
     }
 
 }
 
 fn writer_main(queue: &ChannelReceiver<Vec<u8>>, tun_writer: &mut TunWriter) -> ! {
     println!("Writer thread started");
-    
+
     loop {
         let data = queue.recv().unwrap();
         tun_writer.write(&data[..]);
