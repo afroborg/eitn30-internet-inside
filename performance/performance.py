@@ -1,9 +1,13 @@
+import os
 import sys
+import time
 import iperf3
 import datetime
 import json
-import time
-import subprocess
+
+def restart_service():
+    print("Restarting longge service\n")
+    os.popen("sudo systemctl restart longge.service")
 
 def read_arguments():
     """
@@ -17,7 +21,7 @@ def read_arguments():
     
     return (server_ip, start_b, step_b, end_b, server_port, duration, protocol)
 
-def create_client(server_ip: str, server_port: str, bandwidth: int, duration: int, protocol: str):
+def create_client(server_ip: str, server_port: str, bandwidth: int, duration: int, protocol: str) -> iperf3.Client:
     """
     Create an iperf3 client object.
 
@@ -25,10 +29,9 @@ def create_client(server_ip: str, server_port: str, bandwidth: int, duration: in
     client: The iperf3 client object.
     """
 
-    iperf_path = subprocess.check_output(['which', 'iperf3']).decode('utf-8').strip()
-
     # iperf3 -c <server_ip> -u -b 100K -l 32 -t 60
-    client = iperf3.Client(lib_name=iperf_path)                # -c, --client <arg>    run in client mode, connecting to <host>
+    client = iperf3.Client()                # -c, --client <arg>    run in client mode, connecting to <host>
+    client.bind_address = '10.0.0.1'
     client.server_hostname = server_ip      # <server_ip>
     client.port = server_port               # -p, --port <arg>      server port to connect to
     client.protocol = protocol              # -u, --udp             use UDP rather than TCP
@@ -102,17 +105,21 @@ def test_performances():
     print(f'  server: {server_ip}:{server_port}')
     print(f'  testing bandwidths between {start_b // 1000} and {end_b // 1000} kbps')
 
+    clients = []
+
     # Perform a test for each bandwidth and duration
     for bandwidth in bandwidths:
-        client = create_client(server_ip, server_port, bandwidth, duration, protocol)
+        time.sleep(1)
+        
+        clients.append(create_client(server_ip, server_port, bandwidth, duration, protocol))
 
         results.append({
             'bandwidth': bandwidth,
-            **test_performance(client)
+            **test_performance(clients[-1])
         })
 
-        del client
-        time.sleep(1) # sleep for 1 second between tests to avoid overloading the server and the client
+        time.sleep(1)
+
     
     save_results(protocol, { 'server': f'{server_ip}:{server_port}', 'duration': duration , 'results': results })
 
@@ -120,4 +127,5 @@ def test_performances():
     print(f'Performance tests completed')
 
 if __name__ == '__main__':
+    restart_service()
     test_performances()

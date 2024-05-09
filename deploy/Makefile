@@ -5,6 +5,7 @@ mobile_address = 1
 mobile_channel = 116
 
 delay = 5
+longge_default = true
 
 run-mobile:
 	sudo ./eitn30-internet-inside \
@@ -14,7 +15,8 @@ run-mobile:
 		--transmitter-channel 	$(base_channel) \
 		--delay 				$(delay) \
 		--transmitter-gpio		7 \
-		--receiver-gpio			17
+		--receiver-gpio			17 \
+		--longge-default		$(longge_default)
 run-base:
 	sudo ./eitn30-internet-inside \
 		--receiver-address 		$(mobile_address) \

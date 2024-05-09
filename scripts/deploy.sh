@@ -5,6 +5,8 @@ readonly BINARY_PATH=target/${TARGET}/release/eitn30-internet-inside
 readonly SSH_KEY=~/.ssh/eitn30-pi
 
 readonly MAKEFILE_PATH=deploy/Makefile
+readonly PERFORMANCE_SCRIPT_PATH=performance/performance.py
+readonly PERFORMANCE_REQUIREMENTS_PATH=performance/requirements.txt
 readonly SERVICE_NAME=longge.service
 
 # Provided by tailscale
@@ -34,7 +36,15 @@ while getopts "n:" opt; do
 done
 
 echo "Deploying to inuti${PI_NUMBER}"
-rsync ${BINARY_PATH} ${MAKEFILE_PATH} -e "ssh -i ${SSH_KEY}" pi@${PI_IP}:~/eitn30 > /dev/null 2>&1
+
+FILES="${BINARY_PATH} ${MAKEFILE_PATH}"
+
+if [ ${PI_IP} = ${MOBILE_IP} ]
+then
+  FILES="${FILES} ${PERFORMANCE_SCRIPT_PATH} ${PERFORMANCE_REQUIREMENTS_PATH}"
+fi
+
+rsync -r ${FILES} -e "ssh -i ${SSH_KEY}" pi@${PI_IP}:~/eitn30 > /dev/null 2>&1
 
 echo "Restarting service"
 ssh -i "${SSH_KEY}" -A pi@"${PI_IP}" "sudo systemctl restart '${SERVICE_NAME}'" > /dev/null 2>&1

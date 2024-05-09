@@ -1,11 +1,13 @@
 # Performance testing
 
+## Mobile unit (client)
+
 Create a venv and install the requirements:
 
 ```bash
 python3 -m venv venv
 source venv/bin/activate
-pip install -r requirements.txt
+python3 -m pip install -r requirements.txt
 ```
 
 Run the tests by running the `performance.py` script. The script takes the following arguments:
@@ -18,5 +20,19 @@ Run the tests by running the `performance.py` script. The script takes the follo
 Example usage:
 
 ```bash
-python performance.py 100.65.157.26:5002 10:10:300 3 # Tests all bandwidths from 10 to 300 in steps of 10 for 3 seconds using the UDP protocol.
+python performance.py 10.0.0.0:5002 10:10:300 3 # Tests all bandwidths from 10 to 300 in steps of 10 for 3 seconds using the UDP protocol.
+```
+
+## Base station (server)
+
+On the base station, run iperf3 server:
+
+```bash
+iperf3 -s -p <server_port>
+```
+
+Example usage:
+
+```bash
+iperf3 -s -p 5002
 ```

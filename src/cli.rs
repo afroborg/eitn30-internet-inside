@@ -34,4 +34,8 @@ pub struct Args {
     /// GPIO pin for the receiver
     #[arg(short, long, default_value_t = 17, value_parser=clap::value_parser!(u64))]
     pub receiver_gpio: u64,
+
+    /// Sets longge as the default interface
+    #[arg(short, long, default_value_t = false, action = clap::ArgAction::Set)]
+    pub longge_default: bool,
 }
