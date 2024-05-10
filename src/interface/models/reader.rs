@@ -26,7 +26,7 @@ impl TunReader {
                 &self.buf[..size]
             }
             Err(e) => {
-                eprintln!("Error reading from tun device: {}", e);
+                eprintln!("Error reading from tun device: {e}");
                 &[]
             }
         }

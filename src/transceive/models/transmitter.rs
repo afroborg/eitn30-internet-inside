@@ -34,7 +34,7 @@ impl Transmitter {
     pub fn push(&mut self, message: &[u8]) -> Result<(), String> {
         self.device
             .push(0, message)
-            .map_err(|err| format!("{:?}", err))
+            .map_err(|err| format!("{err:?}"))
     }
 
     /// Transmit a message to the device
@@ -57,9 +57,9 @@ impl Transmitter {
 
                 self.device
                     .flush_output()
-                    .map_err(|err| format!("Failed to flush output: {:?}", err))?;
+                    .map_err(|err| format!("Failed to flush output: {err:?}"))?;
 
-                Err(format!("Destination unreachable: {:?}", err))
+                Err(format!("Destination unreachable: {err:?}"))
             }
         }
     }

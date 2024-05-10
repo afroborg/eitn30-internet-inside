@@ -47,23 +47,23 @@ impl IpTableEntry {
         let mut rule = String::new();
 
         if let Some(in_interface) = &self.in_iterface {
-            rule.push_str(&format!(" -i {}", in_interface));
+            rule.push_str(&format!(" -i {in_interface}"));
         }
 
         if let Some(out_interface) = &self.out_interface {
-            rule.push_str(&format!(" -o {}", out_interface));
+            rule.push_str(&format!(" -o {out_interface}"));
         }
 
         if let Some(jump) = &self.jump {
-            rule.push_str(&format!(" -j {}", jump));
+            rule.push_str(&format!(" -j {jump}"));
         }
 
         if let Some(matching) = &self.matching {
-            rule.push_str(&format!(" -m {}", matching));
+            rule.push_str(&format!(" -m {matching}"));
         }
 
         if let Some(state) = &self.state {
-            rule.push_str(&format!(" --state {}", state));
+            rule.push_str(&format!(" --state {state}"));
         }
 
         rule

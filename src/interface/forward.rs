@@ -54,9 +54,9 @@ pub fn apply(tun_interface_name: &str, forwards: &[String]) {
     ctrlc::set_handler(move || {
         set_ip_forward(false);
 
-        rules.iter().for_each(|rule| {
+        for rule in &rules {
             rule.drop();
-        });
+        }
 
         std::process::exit(0);
     })

@@ -16,7 +16,7 @@ impl TunWriter {
                 // println!("Wrote {} bytes to tun device", size)
             }
             Err(e) => {
-                eprintln!("Error writing to tun device: {}", e);
+                eprintln!("Error writing to tun device: {e}");
             }
         }
     }

@@ -38,7 +38,7 @@ pub fn apply(tun_interface_name: &str, address: u8) {
 /// This function will panic if it fails to add or remove the default route
 fn set_route_default(enable: bool, address: u8, tun_interface_name: String) {
     let action = if enable { "add" } else { "del" };
-    let ip = format!("10.0.0.{}", address);
+    let ip = format!("10.0.0.{address}");
 
     Command::new("ip")
         .arg("route")
@@ -49,5 +49,5 @@ fn set_route_default(enable: bool, address: u8, tun_interface_name: String) {
         .arg("dev")
         .arg(tun_interface_name)
         .output()
-        .unwrap_or_else(|_| panic!("Failed to {} default route", action));
+        .unwrap_or_else(|_| panic!("Failed to {action} default route"));
 }

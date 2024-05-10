@@ -1,4 +1,4 @@
-use crate::config::*;
+use crate::config::{ADDRESS_WIDTH, DATA_RATE, PACKET_MAX_RETRIES, PACKET_RETRY_DELAY, PA_LEVEL};
 use nrf24l01::{OperatingMode, RXConfig, TXConfig, NRF24L01};
 
 pub struct Transceiver {
