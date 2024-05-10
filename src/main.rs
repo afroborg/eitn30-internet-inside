@@ -1,16 +1,15 @@
 use clap::Parser;
 use config::*;
 use interface::{tun, TunReader, TunWriter};
+use std::sync::mpsc::{channel, Receiver as ChannelReceiver, Sender as ChannelSender};
 use std::thread;
 use transceive::{Receiver, Transmitter};
-use std::sync::mpsc::{channel, Receiver as ChannelReceiver, Sender as ChannelSender};
 
 mod cli;
 mod config;
 mod interface;
 mod transceive;
 mod utils;
-
 
 fn main() {
     let args = cli::Args::parse();
@@ -80,7 +79,7 @@ fn tx_main(tx: &mut Transmitter, mut tun_reader: TunReader) -> ! {
 
 fn reader_main(queue: &ChannelSender<Vec<u8>>, tun_reader: &mut TunReader) -> ! {
     println!("Reader thread started");
-    
+
     loop {
         let data = tun_reader.read();
 
@@ -121,7 +120,6 @@ fn rx_main(rx: &mut Receiver, mut tun_writer: TunWriter) -> ! {
             end = 0;
         };
     }
-
 }
 
 fn writer_main(queue: &ChannelReceiver<Vec<u8>>, tun_writer: &mut TunWriter) -> ! {
@@ -129,6 +127,6 @@ fn writer_main(queue: &ChannelReceiver<Vec<u8>>, tun_writer: &mut TunWriter) -> 
 
     loop {
         let data = queue.recv().unwrap();
-        tun_writer.write(&data[..]);
+        tun_writer.write(&data);
     }
 }
