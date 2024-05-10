@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
-readonly TARGET=aarch64-unknown-linux-gnu
+echo "Building for target: $1"
 
-cross build --release --target ${TARGET}
+cross build --release --target $1
+
+echo "Build complete"

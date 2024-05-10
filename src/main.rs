@@ -130,3 +130,6 @@ fn writer_main(queue: &ChannelReceiver<Vec<u8>>, tun_writer: &mut TunWriter) -> 
         tun_writer.write(&data);
     }
 }
+
+#[cfg(test)]
+mod test {}

@@ -92,3 +92,78 @@ impl IpTableEntry {
             .expect("Failed to delete rule");
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_new() {
+        let entry = IpTableEntry::new("filter", "INPUT");
+
+        assert_eq!(entry.table, "filter");
+        assert_eq!(entry.chain, "INPUT");
+    }
+
+    #[test]
+    fn test_in_interface() {
+        let mut entry = IpTableEntry::new("filter", "INPUT");
+
+        entry.in_iterface("eth0");
+
+        assert_eq!(entry.in_iterface, Some("eth0".to_owned()));
+    }
+
+    #[test]
+    fn test_out_interface() {
+        let mut entry = IpTableEntry::new("filter", "INPUT");
+
+        entry.out_interface("eth0");
+
+        assert_eq!(entry.out_interface, Some("eth0".to_owned()));
+    }
+
+    #[test]
+    fn test_jump() {
+        let mut entry = IpTableEntry::new("filter", "INPUT");
+
+        entry.jump("ACCEPT");
+
+        assert_eq!(entry.jump, Some("ACCEPT".to_owned()));
+    }
+
+    #[test]
+    fn test_matching() {
+        let mut entry = IpTableEntry::new("filter", "INPUT");
+
+        entry.matching("tcp");
+
+        assert_eq!(entry.matching, Some("tcp".to_owned()));
+    }
+
+    #[test]
+    fn test_state() {
+        let mut entry = IpTableEntry::new("filter", "INPUT");
+
+        entry.state("NEW");
+
+        assert_eq!(entry.state, Some("NEW".to_owned()));
+    }
+
+    #[test]
+    fn test_rule() {
+        let mut entry = IpTableEntry::new("filter", "INPUT");
+
+        entry
+            .in_iterface("eth0")
+            .out_interface("eth1")
+            .jump("ACCEPT")
+            .matching("tcp")
+            .state("NEW");
+
+        assert_eq!(
+            entry.rule(),
+            " -i eth0 -o eth1 -j ACCEPT -m tcp --state NEW"
+        );
+    }
+}
