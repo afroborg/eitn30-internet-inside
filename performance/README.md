@@ -10,28 +10,44 @@ source venv/bin/activate
 python3 -m pip install -r requirements.txt
 ```
 
+### Run tests
+
 Run the tests by running the `performance.py` script. The script takes the following arguments:
 
 - `<server_ip:server_port>`: The IP and port of the server to connect to.
-- `<start_bandwidth:step_bandwidth:end_bandwidth>`: The bandwidths to test. The script will test the bandwidths from `start_bandwidth` to `end_bandwidth` in steps of `step_bandwidth`.
+- `<bandwidth>`: The bandwidth to test, in kbps.
 - `<duration>`: The duration of the test in seconds.
 - `<protocol>`: The protocol to use. Can be either `tcp` or `udp`. Defaults to `udp`.
 
 Example usage:
 
 ```bash
-python performance.py 10.0.0.0:5002 10:10:300 3 # Tests all bandwidths from 10 to 300 in steps of 10 for 3 seconds using the UDP protocol.
+python performance.py 10.0.0.0:5002 10 5 # Tests 10 kbps for 5 seconds using the UDP protocol.
 ```
 
-Alternatively, use the iperf3 command in the terminal to only run once:
+Alternatively, use the iperf3 command in the terminal, but some magic is required to get a good JSON output:
 
 ```bash
 iperf3 -c 10.0.0.0 -p 5002 -b <bandwidth> -t <duration> -u
 ```
 
+### Plot data
+
+When copying over the test data from the mobile unit to the current terminal directory, you can use the following command. It is recommended to run this from the `/performance` directory:
+
+```bash
+scp -r -i ~/.ssh/eitn30-pi pi@<mobile_ip>:~/eitn30/data .
+```
+
+Plot the data using the `plot.py` script. The script takes one argument, the protocol to plot for (udp or tcp). The script will plot all the data in the `data/<protocol>` directory.
+
+```bash
+python plot.py <protocol>
+```
+
 ## Base station (server)
 
-On the base station, run iperf3 server:
+On the base station, run the iperf3 server to allow the client to connect:
 
 ```bash
 iperf3 -s -p <server_port>

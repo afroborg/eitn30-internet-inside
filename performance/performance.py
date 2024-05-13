@@ -1,6 +1,5 @@
 import os
 import sys
-import time
 import iperf3
 import datetime
 import json
@@ -15,11 +14,11 @@ def read_arguments():
     """
 
     [server_ip, server_port] = sys.argv[1].split(':')
-    [start_b, step_b, end_b] = [int(x) * 1000 for x in sys.argv[2].split(':')]
+    bandwidth = 1000 * int(sys.argv[2])
     duration = int(sys.argv[3])
     protocol = sys.argv[4] if len(sys.argv) > 4 else 'udp'
     
-    return (server_ip, start_b, step_b, end_b, server_port, duration, protocol)
+    return (server_ip, bandwidth, server_port, duration, protocol)
 
 def create_client(server_ip: str, server_port: str, bandwidth: int, duration: int, protocol: str) -> iperf3.Client:
     """
@@ -41,14 +40,14 @@ def create_client(server_ip: str, server_port: str, bandwidth: int, duration: in
 
     return client
 
-def save_results(protocol: str, result: json):
+def save_results(bandwidth: int, protocol: str, result: json):
     """
     Save the results of the performance tests to a file.
     """
 
     date_now = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
 
-    output_file = open(f"data/{protocol}/{date_now}.json", "w+")
+    output_file = open(f"data/{protocol}/{bandwidth // 1000}K-{date_now}.json", "w+")
     output_file.write(json.dumps(result, indent=2))
     output_file.close()
 
@@ -94,41 +93,24 @@ def test_performances():
     Perform a series of performance tests using iperf3.
     """
 
-    (server_ip, start_b, step_b, end_b, server_port, duration, protocol) = read_arguments()
-
-    # Create a list of bandwidths to test
-    bandwidths = [b for b in range(start_b, end_b + 1, step_b)]
-
-    results = []
+    (server_ip, bandwidth, server_port, duration, protocol) = read_arguments()
 
     print(f'Testing performance for {protocol} protocol')
     print(f'  server: {server_ip}:{server_port}')
-    print(f'  testing bandwidths between {start_b // 1000} and {end_b // 1000} kbps')
+    print(f'  testing bandwidth {bandwidth // 1000} kbps')
 
-    clients = []
+    # Perform a test for each bandwidth and duration        
+    client = create_client(server_ip, server_port, bandwidth, duration, protocol)
 
-    # Perform a test for each bandwidth and duration
-    for bandwidth in bandwidths:
-        restart_service()
-
-        time.sleep(5)
-        
-        # client = create_client(server_ip, server_port, bandwidth, duration, protocol)
-        clients.append(create_client(server_ip, server_port, bandwidth, duration, protocol))
-
-        results.append({
-            'bandwidth': bandwidth,
-            **test_performance(clients[-1])
-            # **test_performance(client)
-        })
-
-        # del client
-
+    result = {
+        'bandwidth': bandwidth,
+        **test_performance(client)
+    }
     
-    save_results(protocol, { 'server': f'{server_ip}:{server_port}', 'duration': duration , 'results': results })
+    save_results(bandwidth, protocol, { 'server': f'{server_ip}:{server_port}', 'duration': duration , 'result': result })
 
     print(f'')
-    print(f'Performance tests completed')
+    print(f'Performance test completed')
 
 if __name__ == '__main__':
     test_performances()
