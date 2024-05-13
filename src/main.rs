@@ -63,7 +63,6 @@ fn tx_main(mut tx: Transmitter, tun_reader: TunReader) -> ! {
     thread::spawn(move || reader_main(reader_queue, tun_reader));
 
     loop {
-        println!("Reading from tx queue");
         let data = tx_queue.recv().unwrap();
 
         data.chunks(PACKET_SIZE * QUEUE_SIZE).for_each(|queue| {
@@ -82,8 +81,11 @@ fn reader_main(queue: ChannelSender<Vec<u8>>, mut tun_reader: TunReader) -> ! {
     println!("Reader thread started");
 
     loop {
-        println!("Reading from tun");
         let data = tun_reader.read();
+
+        if data.is_empty() {
+            continue;
+        }
 
         queue.send(data.to_vec()).unwrap();
     }
@@ -100,26 +102,30 @@ fn rx_main(mut rx: Receiver, tun_writer: TunWriter) -> ! {
     thread::spawn(move || writer_main(writer_queue, tun_writer));
 
     loop {
-        if (end + PACKET_SIZE) >= BUFFER_SIZE {
+        if !rx.data_available() {
+            continue;
+        }
+
+        if end + (PACKET_SIZE * QUEUE_SIZE) >= BUFFER_SIZE {
+            println!("Buffer full, resetting: {end}");
             end = 0;
         }
 
-        match rx.receive(&mut buf, end) {
-            Ok(new_end) => {
-                end = new_end;
+        let Ok(new_end) = rx.receive(&mut buf, end) else {
+            continue;
+        };
 
-                let data = &buf[..end];
+        end = new_end;
 
-                if end <= 6 || !interface::packet::is_valid(data) {
-                    continue;
-                }
+        let data = &buf[..end];
 
-                rx_queue.send(data.to_vec()).unwrap();
-
-                end = 0;
-            }
-            _ => (),
+        if end <= 10 || !interface::packet::is_valid(data) {
+            continue;
         }
+
+        rx_queue.send(data.to_vec()).unwrap();
+
+        end = 0;
     }
 }
 
@@ -127,13 +133,8 @@ fn writer_main(queue: ChannelReceiver<Vec<u8>>, mut tun_writer: TunWriter) -> ! 
     println!("Writer thread started");
 
     loop {
-        println!("Reading from rx queue");
         let data = queue.recv().unwrap();
 
-        println!("Writing to tun");
         tun_writer.write(&data);
     }
 }
-
-#[cfg(test)]
-mod test {}
