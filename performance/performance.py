@@ -109,16 +109,20 @@ def test_performances():
 
     # Perform a test for each bandwidth and duration
     for bandwidth in bandwidths:
-        time.sleep(1)
+        restart_service()
+
+        time.sleep(5)
         
+        # client = create_client(server_ip, server_port, bandwidth, duration, protocol)
         clients.append(create_client(server_ip, server_port, bandwidth, duration, protocol))
 
         results.append({
             'bandwidth': bandwidth,
             **test_performance(clients[-1])
+            # **test_performance(client)
         })
 
-        time.sleep(1)
+        # del client
 
     
     save_results(protocol, { 'server': f'{server_ip}:{server_port}', 'duration': duration , 'results': results })
@@ -127,5 +131,4 @@ def test_performances():
     print(f'Performance tests completed')
 
 if __name__ == '__main__':
-    restart_service()
     test_performances()

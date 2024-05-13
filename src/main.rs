@@ -14,7 +14,7 @@ mod utils;
 fn main() {
     let args = cli::Args::parse();
 
-    let address = *b"ad0"; // In hexadecimal: 61 64 30
+    let address = *b"ad0";
 
     let receiver_address = utils::change_last_byte(&address, args.receiver_address);
     let transmitter_address = utils::change_last_byte(&address, args.transmitter_address);
@@ -34,35 +34,36 @@ fn main() {
         }
     }
 
-    let mut tx = Transmitter::new(
+    let tx = Transmitter::new(
         args.transmitter_gpio,
         TRANSMITTER_SPI_CHANNEL,
         args.transmitter_channel,
         transmitter_address,
     );
 
-    let mut rx = Receiver::new(
+    let rx = Receiver::new(
         args.receiver_gpio,
         RECEIVER_SPI_CHANNEL,
         args.receiver_channel,
         receiver_address,
     );
 
-    let tx_thread = thread::spawn(move || tx_main(&mut tx, tun_reader));
-    let rx_thread = thread::spawn(move || rx_main(&mut rx, tun_writer));
+    let tx_thread = thread::spawn(move || tx_main(tx, tun_reader));
+    let rx_thread = thread::spawn(move || rx_main(rx, tun_writer));
 
     tx_thread.join().expect("Transmitter thread panicked");
     rx_thread.join().expect("Receiver thread panicked");
 }
 
-fn tx_main(tx: &mut Transmitter, mut tun_reader: TunReader) -> ! {
+fn tx_main(mut tx: Transmitter, tun_reader: TunReader) -> ! {
     println!("Transmitter thread started");
 
     let (reader_queue, tx_queue) = channel::<Vec<u8>>();
 
-    thread::spawn(move || reader_main(&reader_queue, &mut tun_reader));
+    thread::spawn(move || reader_main(reader_queue, tun_reader));
 
     loop {
+        println!("Reading from tx queue");
         let data = tx_queue.recv().unwrap();
 
         data.chunks(PACKET_SIZE * QUEUE_SIZE).for_each(|queue| {
@@ -70,28 +71,25 @@ fn tx_main(tx: &mut Transmitter, mut tun_reader: TunReader) -> ! {
                 tx.push(pkt).unwrap();
             });
 
-            if let Err(err) = tx.transmit(10) {
+            if let Err(err) = tx.transmit(2) {
                 println!("Error: {err}");
             };
         });
     }
 }
 
-fn reader_main(queue: &ChannelSender<Vec<u8>>, tun_reader: &mut TunReader) -> ! {
+fn reader_main(queue: ChannelSender<Vec<u8>>, mut tun_reader: TunReader) -> ! {
     println!("Reader thread started");
 
     loop {
+        println!("Reading from tun");
         let data = tun_reader.read();
-
-        if data.is_empty() {
-            continue;
-        }
 
         queue.send(data.to_vec()).unwrap();
     }
 }
 
-fn rx_main(rx: &mut Receiver, mut tun_writer: TunWriter) -> ! {
+fn rx_main(mut rx: Receiver, tun_writer: TunWriter) -> ! {
     println!("Receiver thread started");
 
     let mut buf = [0u8; BUFFER_SIZE];
@@ -99,34 +97,40 @@ fn rx_main(rx: &mut Receiver, mut tun_writer: TunWriter) -> ! {
 
     let (rx_queue, writer_queue) = channel::<Vec<u8>>();
 
-    thread::spawn(move || writer_main(&writer_queue, &mut tun_writer));
+    thread::spawn(move || writer_main(writer_queue, tun_writer));
 
     loop {
-        if (end + PACKET_SIZE * QUEUE_SIZE) >= BUFFER_SIZE {
+        if (end + PACKET_SIZE) >= BUFFER_SIZE {
             end = 0;
         }
 
-        if let Ok(new_end) = rx.receive(&mut buf, end) {
-            end = new_end;
+        match rx.receive(&mut buf, end) {
+            Ok(new_end) => {
+                end = new_end;
 
-            let data = &buf[..end];
+                let data = &buf[..end];
 
-            if end <= 6 || !interface::packet::is_valid(data) {
-                continue;
+                if end <= 6 || !interface::packet::is_valid(data) {
+                    continue;
+                }
+
+                rx_queue.send(data.to_vec()).unwrap();
+
+                end = 0;
             }
-
-            rx_queue.send(data.to_vec()).unwrap();
-
-            end = 0;
-        };
+            _ => (),
+        }
     }
 }
 
-fn writer_main(queue: &ChannelReceiver<Vec<u8>>, tun_writer: &mut TunWriter) -> ! {
+fn writer_main(queue: ChannelReceiver<Vec<u8>>, mut tun_writer: TunWriter) -> ! {
     println!("Writer thread started");
 
     loop {
+        println!("Reading from rx queue");
         let data = queue.recv().unwrap();
+
+        println!("Writing to tun");
         tun_writer.write(&data);
     }
 }

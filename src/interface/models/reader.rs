@@ -1,6 +1,6 @@
 use crate::config::BUFFER_SIZE;
 use std::io::Read;
-use tun::platform::posix::Reader as PosixReader;
+use tun2::platform::posix::Reader as PosixReader;
 
 pub struct TunReader {
     reader: PosixReader,
@@ -26,7 +26,7 @@ impl TunReader {
                 &self.buf[..size]
             }
             Err(e) => {
-                eprintln!("Error reading from tun device: {e}");
+                println!("Error reading from tun device: {e}");
                 &[]
             }
         }

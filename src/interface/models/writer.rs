@@ -1,5 +1,5 @@
 use std::io::Write;
-use tun::platform::posix::Writer as PosixWriter;
+use tun2::platform::posix::Writer as PosixWriter;
 
 pub struct TunWriter {
     writer: PosixWriter,
@@ -12,8 +12,10 @@ impl TunWriter {
 
     pub fn write(&mut self, data: &[u8]) {
         match self.writer.write(data) {
-            Ok(_size) => {
-                // println!("Wrote {} bytes to tun device", size)
+            Ok(size) => {
+                if size == 0 {
+                    eprintln!("Wrote 0 bytes to tun device");
+                }
             }
             Err(e) => {
                 eprintln!("Error writing to tun device: {e}");

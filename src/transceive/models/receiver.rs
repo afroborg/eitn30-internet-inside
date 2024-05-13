@@ -40,7 +40,11 @@ impl Receiver {
 
                 Ok(e)
             }
-            _ => Err("No data available".to_string()),
+            Ok(false) => Err("No data available".to_string()),
+            Err(e) => {
+                println!("Error checking for data: {e}");
+                Err("Error checking for data".to_string())
+            }
         }
     }
 }

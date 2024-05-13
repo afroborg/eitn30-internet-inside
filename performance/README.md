@@ -23,6 +23,12 @@ Example usage:
 python performance.py 10.0.0.0:5002 10:10:300 3 # Tests all bandwidths from 10 to 300 in steps of 10 for 3 seconds using the UDP protocol.
 ```
 
+Alternatively, use the iperf3 command in the terminal to only run once:
+
+```bash
+iperf3 -c 10.0.0.0 -p 5002 -b <bandwidth> -t <duration> -u
+```
+
 ## Base station (server)
 
 On the base station, run iperf3 server:

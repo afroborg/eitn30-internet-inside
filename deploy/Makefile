@@ -4,7 +4,7 @@ base_channel = 108
 mobile_address = 1
 mobile_channel = 116
 
-longge_default = true
+longge_default = false
 
 run-mobile:
 	sudo ./eitn30-internet-inside \
