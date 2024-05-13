@@ -4,7 +4,6 @@ use tun2::platform::posix::Reader as PosixReader;
 
 pub struct TunReader {
     reader: PosixReader,
-    // TODO: 1596 instead of 4096. And check why we even have +96 instead of some other number
     buf: [u8; BUFFER_SIZE],
 }
 
@@ -18,13 +17,7 @@ impl TunReader {
 
     pub fn read(&mut self) -> &[u8] {
         match self.reader.read(&mut self.buf) {
-            Ok(size) => {
-                if size == 0 {
-                    return &[];
-                }
-
-                &self.buf[..size]
-            }
+            Ok(size) => &self.buf[..size],
             Err(e) => {
                 println!("Error reading from tun device: {e}");
                 &[]

@@ -119,7 +119,7 @@ fn rx_main(mut rx: Receiver, tun_writer: TunWriter) -> ! {
 
         let data = &buf[..end];
 
-        if end <= 10 || !interface::packet::is_valid(data) {
+        if end <= 6 || !interface::packet::is_valid(data) {
             continue;
         }
 

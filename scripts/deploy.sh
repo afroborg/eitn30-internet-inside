@@ -44,9 +44,9 @@ then
   FILES="${FILES} ${PERFORMANCE_SCRIPT_PATH} ${PERFORMANCE_REQUIREMENTS_PATH}"
 fi
 
-rsync -r ${FILES} -e "ssh -i ${SSH_KEY}" pi@${PI_IP}:~/eitn30 > /dev/null 2>&1
+rsync -r ${FILES} -e "ssh -i ${SSH_KEY}" pi@${PI_IP}:~/eitn30 > /dev/null
 
 echo "Restarting service"
-ssh -i "${SSH_KEY}" -A pi@"${PI_IP}" "sudo systemctl restart '${SERVICE_NAME}'" > /dev/null 2>&1
+ssh -i "${SSH_KEY}" -A pi@"${PI_IP}" "sudo systemctl restart '${SERVICE_NAME}'" > /dev/null
 
 echo "Done"

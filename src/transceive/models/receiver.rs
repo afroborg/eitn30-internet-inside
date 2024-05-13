@@ -1,10 +1,10 @@
-use crate::config::ADDRESS_WIDTH;
+use crate::{config::ADDRESS_WIDTH, BUFFER_SIZE};
 use nrf24l01::NRF24L01;
 
 use super::transceiver::Transceiver;
 
 pub struct Receiver {
-    device: NRF24L01,
+    pub device: NRF24L01,
 }
 
 impl Receiver {
@@ -12,6 +12,17 @@ impl Receiver {
         let device = Transceiver::new(ce_pin, spi).set_receiver(channel, address);
 
         Self { device }
+    }
+
+    pub fn data_available(&self) -> bool {
+        match self.device.data_available() {
+            Ok(true) => true,
+            Ok(false) => false,
+            Err(e) => {
+                println!("Error checking for data: {e}");
+                false
+            }
+        }
     }
 
     /// Receive data from the device
@@ -25,26 +36,17 @@ impl Receiver {
     ///
     /// The number of bytes received
     /// or an error message if no data is available
-    pub fn receive(&mut self, buf: &mut [u8; 4096], end: usize) -> Result<usize, String> {
-        match self.device.data_available() {
-            Ok(true) => {
-                let mut e = end;
+    pub fn receive(&mut self, buf: &mut [u8; BUFFER_SIZE], end: usize) -> Result<usize, String> {
+        let mut e = end;
 
-                self.device
-                    .read_all(|packet| {
-                        let start = e;
-                        e += packet.len();
-                        buf[start..e].copy_from_slice(packet);
-                    })
-                    .unwrap();
+        self.device
+            .read_all(|packet| {
+                let start = e;
+                e += packet.len();
+                buf[start..e].copy_from_slice(packet);
+            })
+            .unwrap();
 
-                Ok(e)
-            }
-            Ok(false) => Err("No data available".to_string()),
-            Err(e) => {
-                println!("Error checking for data: {e}");
-                Err("Error checking for data".to_string())
-            }
-        }
+        Ok(e)
     }
 }

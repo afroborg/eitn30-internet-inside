@@ -23,8 +23,6 @@ pub fn is_valid(buf: &[u8]) -> bool {
                 return false;
             }
 
-            // Print the packet and its length if it is valid
-            // println!("Packet {:?} length: {}", &packet, packet_length);
             true
         }
         Err(_) => false,
