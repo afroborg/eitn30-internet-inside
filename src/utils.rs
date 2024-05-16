@@ -10,9 +10,9 @@ use crate::config::ADDRESS_WIDTH;
 /// # Returns
 ///
 /// The new address with the last byte changed
-pub const fn change_last_byte(address: &[u8; ADDRESS_WIDTH], value: u8) -> [u8; ADDRESS_WIDTH] {
+pub fn change_last_byte(address: &[u8; ADDRESS_WIDTH], value: u8) -> [u8; ADDRESS_WIDTH] {
     let mut new_address = *address;
-    new_address[ADDRESS_WIDTH - 1] = value;
+    new_address[ADDRESS_WIDTH - 1] = value.to_string().as_bytes()[0];
     new_address
 }
 
@@ -24,7 +24,7 @@ mod tests {
     fn test_change_last_byte() {
         let expected = *b"ad1";
         let address = b"ad0";
-        let value = 49;
+        let value = 1;
 
         assert_eq!(change_last_byte(&address, value), expected);
     }
@@ -33,7 +33,7 @@ mod tests {
     fn test_change_last_byte_2() {
         let expected = *b"ad2";
         let address = b"ad0";
-        let value = 50;
+        let value = 2;
 
         assert_eq!(change_last_byte(&address, value), expected);
     }

@@ -16,8 +16,7 @@ impl Receiver {
 
     pub fn data_available(&self) -> bool {
         match self.device.data_available() {
-            Ok(true) => true,
-            Ok(false) => false,
+            Ok(val) => val,
             Err(e) => {
                 println!("Error checking for data: {e}");
                 false

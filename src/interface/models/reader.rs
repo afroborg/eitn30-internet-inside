@@ -1,6 +1,7 @@
 use crate::config::BUFFER_SIZE;
 use std::io::Read;
-use tun2::platform::posix::Reader as PosixReader;
+use tun::platform::posix::Reader as PosixReader;
+use tun2 as tun;
 
 pub struct TunReader {
     reader: PosixReader,

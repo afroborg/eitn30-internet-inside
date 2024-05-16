@@ -1,5 +1,6 @@
 use std::io::Write;
-use tun2::platform::posix::Writer as PosixWriter;
+use tun::platform::posix::Writer as PosixWriter;
+use tun2 as tun;
 
 pub struct TunWriter {
     writer: PosixWriter,
