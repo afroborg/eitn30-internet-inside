@@ -3,10 +3,11 @@
 ### Packet structure
 
 An _Enhanced ShockBurst™_ packet consists of:
+
 - A header with:
-    - 1 B preamble
-    - 3-5 B address (3 B with our library)
-    - 9 b packet control field
+  - 1 B preamble
+  - 3-5 B address (3 B with our library)
+  - 9 b packet control field
 - A payload of 0-32 B
 - A trailer of 1-2 B CRC (2 B with our library)
 
@@ -18,11 +19,11 @@ $$57b + 32B = 313b$$
 
 The time to transmit an entire _Enhanced ShockBurst™_ packet is $T_{ESB}$, which - when considering ACKs - is calculated as:
 
-$$T_{ESB} = T_{UL} + 2 \cdot T_{HCE} + 2 \cdot T_{stdby2a} + T_{OA} + T_{ACK} + T_{IRQ}$$
+$$T_{ESB} = T_{UL} + T_{stdby2a} + T_{OA} + T_{ACK} + T_{IRQ}$$
 
 Where:
+
 - $T_{UL}$ is the time to upload the payload through the SPI link
-- $T_{HCE}$ is the time that the CE pin is high before the transmitter is activated
 - $T_{stdby2a}$ is the time to transition from _Standby-I_ to _Active_ mode
 - $T_{OA}$ is the time-on-air, the time to transmit a packet
 - $T_{ACK}$ is the time to transmit an ACK packet
@@ -31,7 +32,7 @@ The datasheet provides a max SPI speed of 10 Mbps, which means that the minimum 
 
 $$T_{UL} = \frac{313b}{10 \cdot 10^6 \frac{b}{s}} = 31.3 \mu s$$
 
-The time for $T_{HCE}$ is given by the datasheet as $10 \mu s$. The time to transition from _Standby-I_ to _Active_ mode is also given as $T_{stdby2a} = 130 \mu s$.
+The time to transition from _Standby-I_ to _Active_ mode is also given as $T_{stdby2a} = 130 \mu s$.
 
 The time on air depends on the bitrate of the transceiver. The nRF24L01+ has a maximum bitrate of 2 Mbps, which means one bit can be transmitted every 0.5 $\mu s$, or one byte every 4 $\mu s$. We then get the $T_{OA}$ as:
 
@@ -43,21 +44,23 @@ $$T_{ACK} = T_{OA} = 152.5 \mu s$$
 
 The total time to transmit a packet is therefore:
 
-$$T_{ESB} = 30.5 \mu s + 2 \cdot 10 \mu s + 2 \cdot 130 \mu s + 152.5 \mu s + 152.5 \mu s = 615.5 \mu s$$
+$$T_{ESB} = 30.5 \mu s + 130 \mu s + 152.5 \mu s + 152.5 \mu s = 465.5 \mu s$$
 
-However, the delay between starting to transmit a packet, and starting to read the received ACK, must be at least $360 \mu s$, which is reflected in the `send` function in the library. Currently, this delay is only $152.5 \mu s  + 10 \mu s + 130 \mu s = 292.5 \mu s$, which is too short. Therefore, an additional delay of $360 \mu s - 292.5 \mu s = 67.5 \mu s$ can be added to the total transmit time:
+<!--
+However, the delay between starting to transmit a packet, and starting to read the received ACK, must be at least $360 \mu s$, which is reflected in the `send` function in the library. Currently, this delay is only $152.5 \mu s$, which is too short. Therefore, an additional delay of $360 \mu s - 152.5 \mu s = 207.5 \mu s$ can be added to the total transmit time:
 
-$$T_{ESB\_Final} = 615.5 \mu s + 67.5 \mu s = 683 \mu s$$
+$$T_{ESB\_Final} = 465.5 \mu s + 207.5 \mu s = 673 \mu s$$
+-->
 
 ### Throughput
 
 The maximum theoretical bitrate can be calculated by first dividing the packet length by the total delay:
 
-$$\frac{313b}{683 \mu s} = \frac{313b}{683 \cdot 10^{-6} s} = 458.3 kbps$$
+$$\frac{313b}{465.5 \mu s} = \frac{313b}{465.5 \cdot 10^{-6} s} = 672.4 kbps$$
 
 Of which, only 32B is payload. This means that the maximum theoretical throughput is:
 
-$$\frac{32B}{683 \mu s} = \frac{256 b}{683 \cdot 10^{-6} s} = 374.8 kbps$$
+$$\frac{32B}{465.5 \mu s} = \frac{256 b}{465.5 \cdot 10^{-6} s} = 550.0 kbps$$
 
 ## Proposed changes
 
@@ -70,37 +73,3 @@ However, to the extent that we got this working, it did not seem to have any eff
 ### CRC
 
 We also tried to decrease the CRC to 1 B, as the datasheet states that this should be possible. However, changing this made the program non-functional. The same thing occured when removing the CRC altogether. Therefore, we reverted these changes as well.
-
-## Testing
-
-### MTU
-
-| MTU (B)  | Observed transmission speed |
-| -------- | --------------------------- |
-| 1500     | Slow                        |
-| 65535    | Fast                        |
-
-### Delay
-
-| Delay (us) | Observed transmission speed    |
-| ---------- | ------------------------------ |
-| 5          | Fast                           |
-| 20         | Fast                           |
-| 100        | Slow                           |
-| 320        | About halved from a 5 us delay |
-
-### PACKET_MAX_RETRIES
-
-| MAX_NBR_RETRIES | Observed transmission speed |
-| --------------- | --------------------------- |
-| 2               | Fast                        |
-| 15              | Fast                        |
-
-### PACKET_RETRY_DELAY
-
-| PACKET_RETRY_DELAY | Observed transmission speed |
-| ------------------ | --------------------------- |
-| 1                  | Fast                        |
-| 2                  | Fast                        |
-| 10                 | Fast                        |
-

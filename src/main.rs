@@ -3,6 +3,7 @@ use config::*;
 use interface::{tun, TunReader, TunWriter};
 use std::sync::mpsc::{channel, Receiver as ChannelReceiver, Sender as ChannelSender};
 use std::thread;
+use std::time::Instant;
 use transceive::{Receiver, Transmitter};
 
 mod cli;
@@ -39,6 +40,7 @@ fn main() {
         TRANSMITTER_SPI_CHANNEL,
         args.transmitter_channel,
         transmitter_address,
+        args.auto_ack,
     );
 
     let rx = Receiver::new(
@@ -46,6 +48,7 @@ fn main() {
         RECEIVER_SPI_CHANNEL,
         args.receiver_channel,
         receiver_address,
+        args.auto_ack,
     );
 
     let tx_thread = thread::spawn(move || tx_main(tx, tun_reader));
@@ -65,6 +68,8 @@ fn tx_main(mut tx: Transmitter, tun_reader: TunReader) -> ! {
     loop {
         let data = tx_queue.recv().unwrap();
 
+        let now = Instant::now(); // Timing
+
         data.chunks(PACKET_SIZE * QUEUE_SIZE).for_each(|queue| {
             queue.chunks(PACKET_SIZE).for_each(|pkt| {
                 tx.push(pkt).unwrap();
@@ -74,6 +79,8 @@ fn tx_main(mut tx: Transmitter, tun_reader: TunReader) -> ! {
                 println!("Error: {err}");
             };
         });
+
+        println!("Transmit chunk time: {:.2?}", now.elapsed()); // Timing
     }
 }
 
@@ -106,16 +113,14 @@ fn rx_main(mut rx: Receiver, tun_writer: TunWriter) -> ! {
             continue;
         }
 
-        if end + (PACKET_SIZE * QUEUE_SIZE) >= BUFFER_SIZE {
-            println!("Buffer full, resetting: {end}");
-            end = 0;
-        }
-
-        let Ok(new_end) = rx.receive(&mut buf, end) else {
-            continue;
+        match rx.receive(&mut buf, end) {
+            Ok(new_end) => end = new_end,
+            Err(e) => {
+                end = 0;
+                println!("Error receiving data: {e}");
+                continue;
+            }
         };
-
-        end = new_end;
 
         let data = &buf[..end];
 
@@ -134,7 +139,6 @@ fn writer_main(queue: ChannelReceiver<Vec<u8>>, mut tun_writer: TunWriter) -> ! 
 
     loop {
         let data = queue.recv().unwrap();
-
         tun_writer.write(&data);
     }
 }

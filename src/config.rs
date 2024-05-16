@@ -16,5 +16,5 @@ pub const DATA_RATE: DataRate = DataRate::R2Mbps;
 pub const PA_LEVEL: PALevel = PALevel::Max;
 pub const ADDRESS_WIDTH: usize = 3;
 pub const PACKET_RETRY_DELAY: u8 = 2;
-pub const PACKET_MAX_RETRIES: u8 = 15;
+pub const PACKET_MAX_RETRIES: u8 = 0;
 pub const PACKET_SIZE: usize = 32;

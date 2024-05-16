@@ -34,6 +34,10 @@ pub struct Args {
     /// Sets longge as the default interface
     #[arg(long, default_value_t = false, action = clap::ArgAction::Set)]
     pub longge_default: bool,
+
+    /// Sets the auto-acknowledgement
+    #[arg(long, default_value_t = true, action = clap::ArgAction::Set)]
+    pub auto_ack: bool,
 }
 
 #[cfg(test)]
@@ -68,6 +72,7 @@ mod tests {
         assert_eq!(args.transmitter_gpio, 7);
         assert_eq!(args.receiver_gpio, 17);
         assert_eq!(args.longge_default, true);
+        assert_eq!(args.auto_ack, true);
     }
 
     #[test]
@@ -90,6 +95,8 @@ mod tests {
             "eth0",
             "--forward",
             "wlan0",
+            "--auto-ack",
+            "false",
         ]);
 
         assert_eq!(args.receiver_address, 1);
@@ -103,5 +110,6 @@ mod tests {
         assert_eq!(args.transmitter_gpio, 17);
         assert_eq!(args.receiver_gpio, 27);
         assert_eq!(args.longge_default, false);
+        assert_eq!(args.auto_ack, false);
     }
 }

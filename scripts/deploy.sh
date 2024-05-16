@@ -1,5 +1,9 @@
 #!/bin/bash -e
 
+# Get the BASE and MOBILE IP addresses
+source "$(dirname $0)/env.sh"
+
+# Constants
 readonly TARGET=aarch64-unknown-linux-gnu
 readonly BINARY_PATH=target/${TARGET}/release/eitn30-internet-inside
 readonly SSH_KEY=~/.ssh/eitn30-pi
@@ -8,10 +12,6 @@ readonly MAKEFILE_PATH=deploy/Makefile
 readonly PERFORMANCE_SCRIPT_PATH=performance/performance.py
 readonly PERFORMANCE_REQUIREMENTS_PATH=performance/requirements.txt
 readonly SERVICE_NAME=longge.service
-
-# Provided by tailscale
-readonly BASE_IP="100.93.60.11"
-readonly MOBILE_IP="100.65.157.26"
 
 while getopts "n:" opt; do
   case ${opt} in

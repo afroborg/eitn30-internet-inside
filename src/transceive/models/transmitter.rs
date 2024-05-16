@@ -15,8 +15,14 @@ impl Transmitter {
     /// * `ce_pin` - The CE pin for the device
     /// * `spi` - The SPI bus for the device
     /// * `channel` - The channel for the device
-    pub fn new(ce_pin: u64, spi: u8, channel: u8, address: [u8; ADDRESS_WIDTH]) -> Self {
-        let device = Transceiver::new(ce_pin, spi).set_transmitter(channel, address);
+    pub fn new(
+        ce_pin: u64,
+        spi: u8,
+        channel: u8,
+        address: [u8; ADDRESS_WIDTH],
+        auto_ack: bool,
+    ) -> Self {
+        let device = Transceiver::new(ce_pin, spi, auto_ack).set_transmitter(channel, address);
 
         Self { device }
     }
@@ -52,6 +58,7 @@ impl Transmitter {
             Ok(retries) => Ok(retries),
             Err(err) => {
                 if retries > 0 {
+                    println!("Failed to transmit, {retries} retries remaining");
                     return self.transmit(retries - 1);
                 }
 

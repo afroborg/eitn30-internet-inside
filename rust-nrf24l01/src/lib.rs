@@ -263,6 +263,9 @@ const R_RX_PAYLOAD: Command = 0b0110_0001;
 const R_RX_PL_WID: Command = 0b0110_0000;
 // Push a packet to output FIFO
 const W_TX_PAYLOAD: Command = 0b1010_0000;
+
+const W_TX_PAYLOAD_NO_ACK: Command = 0b1011_0000;
+
 // Push an ACK packet to output FIFO
 // Use the last three bits to specify the pipe number
 const W_ACK_PAYLOAD: Command = 0b1010_1000;
@@ -320,6 +323,7 @@ pub struct NRF24L01 {
     ce: CEPin,
     spi: spidev::Spidev,
     base_config: u8,
+    auto_ack: bool,
 }
 
 impl NRF24L01 {
@@ -457,7 +461,7 @@ impl NRF24L01 {
     ///
     /// System IO errors
     ///
-    pub fn new(ce_pin: u64, spi_port: u8, spi_device: u8) -> io::Result<NRF24L01> {
+    pub fn new(ce_pin: u64, spi_port: u8, spi_device: u8, auto_ack: bool) -> io::Result<NRF24L01> {
         let mut spi = spidev::Spidev::open(format!("/dev/spidev{}.{}", spi_port, spi_device))?;
         let options = spidev::SpidevOptions::new()
             .bits_per_word(8)
@@ -466,10 +470,12 @@ impl NRF24L01 {
             .build();
         spi.configure(&options)?;
         let ce = CEPin::new(ce_pin)?;
+
         Ok(NRF24L01 {
             ce,
             spi,
             base_config: 0b0000_1101,
+            auto_ack,
         })
     }
 
@@ -484,11 +490,16 @@ impl NRF24L01 {
     pub fn configure(&mut self, mode: &OperatingMode) -> io::Result<()> {
         self.ce.down()?;
         // auto acknowlegement
-        self.write_register(EN_AA, 0b0011_1111)?; // 0b0011_1111 to turn on auto ACK for all pipes, 0b0000_0000 to turn off
-                                                  // dynamic payload and payload with ACK
+        let auto_ack_bits: u8 = if self.auto_ack {
+            0b0011_1111 // Enable auto_ack for all pipes
+        } else {
+            0b0000_0000 // Disable auto_ack for all pipes
+        };
+        self.write_register(EN_AA, auto_ack_bits)?;
+        // dynamic payload and payload with ACK
         self.write_register(DYNPD, 0b0011_1111)?; // 0b0011_1111 to turn on dynamic payload for all pipes, 0b0000_0000 to turn off
-        self.write_register(FEATURE, 0b0000_0110)?; // Ending with 110 enables Dynamic payload and automatic ACK. Ending with 001 does the opposite
-                                                    // shrink address width to 3 bytes
+        self.write_register(FEATURE, 0b0000_0110 | !u8::from(self.auto_ack))?; // Ending with 110 enables Dynamic payload and automatic ACK. Ending with 001 does the opposite
+                                                                               // shrink address width to 3 bytes
         self.write_register(SETUP_AW, 0b0000_0001)?;
 
         // Mode specific configuration
@@ -661,7 +672,11 @@ impl NRF24L01 {
                 let actual_pipe_num: u8 = if pipe_num < 6 { pipe_num } else { 5 };
                 W_ACK_PAYLOAD | actual_pipe_num
             } else {
-                W_TX_PAYLOAD
+                if self.auto_ack {
+                    W_TX_PAYLOAD
+                } else {
+                    W_TX_PAYLOAD_NO_ACK
+                }
             };
             if data.len() > 32 {
                 Err(io::Error::new(
@@ -706,24 +721,26 @@ impl NRF24L01 {
             let mut status = 0u8;
             let mut observe = 0u8;
             // wait for ACK
-            while status & 0x30 == 0 {
-                // wait at least 360us
-                sleep(Duration::new(0, 360_000));
-                let outcome = self.read_register(OBSERVE_TX)?;
-                status = outcome.0;
-                observe = outcome.1;
+            if self.auto_ack {
+                while status & 0x30 == 0 {
+                    // wait at least 360us
+                    sleep(Duration::new(0, 360_000));
+                    let outcome = self.read_register(OBSERVE_TX)?;
+                    status = outcome.0;
+                    observe = outcome.1;
+                }
+                // check MAX_RT
+                if status & 0x10 > 0 {
+                    // failure
+                    // clear MAX_RT
+                    self.write_register(STATUS, 0x10)?;
+                    // force return
+                    return Err(io::Error::new(
+                        io::ErrorKind::TimedOut,
+                        "Maximum number of retries reached!",
+                    ));
+                };
             }
-            // check MAX_RT
-            if status & 0x10 > 0 {
-                // failure
-                // clear MAX_RT
-                self.write_register(STATUS, 0x10)?;
-                // force return
-                return Err(io::Error::new(
-                    io::ErrorKind::TimedOut,
-                    "Maximum number of retries reached!",
-                ));
-            };
             // Success
             counter += observe & 0x0f;
             let (_, fifo_status) = self.read_register(FIFO_STATUS)?;

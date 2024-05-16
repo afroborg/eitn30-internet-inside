@@ -4,11 +4,16 @@ use nrf24l01::{OperatingMode, RXConfig, TXConfig, NRF24L01};
 pub struct Transceiver {
     ce_pin: u64,
     spi: u8,
+    auto_ack: bool,
 }
 
 impl Transceiver {
-    pub fn new(ce_pin: u64, spi: u8) -> Self {
-        Self { ce_pin, spi }
+    pub fn new(ce_pin: u64, spi: u8, auto_ack: bool) -> Self {
+        Self {
+            ce_pin,
+            spi,
+            auto_ack,
+        }
     }
 
     /// Set the device as a receiver
@@ -30,7 +35,7 @@ impl Transceiver {
             ..Default::default()
         };
 
-        let mut device = NRF24L01::new(self.ce_pin, self.spi, 0).unwrap();
+        let mut device = NRF24L01::new(self.ce_pin, self.spi, 0, self.auto_ack).unwrap();
 
         device.configure(&OperatingMode::RX(config)).unwrap();
         device.flush_input().unwrap();
@@ -59,7 +64,7 @@ impl Transceiver {
             max_retries: PACKET_MAX_RETRIES,
         };
 
-        let mut device = NRF24L01::new(self.ce_pin, self.spi, 0).unwrap();
+        let mut device = NRF24L01::new(self.ce_pin, self.spi, 0, self.auto_ack).unwrap();
 
         device.configure(&OperatingMode::TX(config)).unwrap();
         device.flush_output().unwrap();
