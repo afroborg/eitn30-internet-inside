@@ -2,7 +2,7 @@ use clap::Parser;
 use config::*;
 use interface::{tun, TunReader, TunWriter};
 use std::sync::mpsc::{channel, Receiver as ChannelReceiver, Sender as ChannelSender};
-use std::thread;
+use std::thread::{self, sleep};
 use std::time::Instant;
 use transceive::{Receiver, Transmitter};
 
@@ -68,7 +68,7 @@ fn tx_main(mut tx: Transmitter, tun_reader: TunReader) -> ! {
     loop {
         let data = tx_queue.recv().unwrap();
 
-        let now = Instant::now(); // Timing
+        // let now = Instant::now(); // Timing
 
         data.chunks(PACKET_SIZE * QUEUE_SIZE).for_each(|queue| {
             queue.chunks(PACKET_SIZE).for_each(|pkt| {
@@ -80,7 +80,7 @@ fn tx_main(mut tx: Transmitter, tun_reader: TunReader) -> ! {
             };
         });
 
-        println!("Transmit chunk time: {:.2?}", now.elapsed()); // Timing
+        // println!("Transmit chunk time: {:.2?}", now.elapsed()); // Timing
     }
 }
 

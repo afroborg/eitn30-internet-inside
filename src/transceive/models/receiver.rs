@@ -4,7 +4,7 @@ use nrf24l01::NRF24L01;
 use super::transceiver::Transceiver;
 
 pub struct Receiver {
-    pub device: NRF24L01,
+    device: NRF24L01,
 }
 
 impl Receiver {

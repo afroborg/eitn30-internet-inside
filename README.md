@@ -45,7 +45,9 @@ If that doesn't work either, the library may need to be build after the second `
 
 ### Build and deploy
 
-The project code is written in Rust, and is built using `cross` for the `aarch64-unknown-linux-gnu` architecture. Make sure that docker is installed and running. Build and deploy the project by running the following commands from the root directory:
+The project code is written in Rust, and is built using `cross` for the `aarch64-unknown-linux-gnu` architecture. Make sure that docker is installed and running.
+
+Copy the contents of `env.sh.example` in the `scripts` directory to a file called `env.sh` in the same directory, and fill in the IP addresses for deployment to base and mobile. Build and deploy the project by running the following commands from the root directory:
 
 ```bash
 make build
@@ -138,21 +140,21 @@ netstat -r              # to show the routing table
 
 The following components are used in the project:
 
-- Raspberry Pi 5 ([Pinout](https://pinout.xyz/))
+- 1 Raspberry Pi 5 and 1 Raspberry Pi 4 ([Pinout](https://pinout.xyz/))
 - nRF24L01+ 2.4 GHz Transciever ([Datasheet](https://www.sparkfun.com/datasheets/Components/SMD/nRF24L01Pluss_Preliminary_Product_Specification_v1_0.pdf))
 
 The transcievers are connected to each Pi as follows:
 
 <center>
 
-| inuti24 (Mobile)      | SPI bus | SPI device | Device Number | CE GPIO | Position (relative to `inuti24` text) |
-|-----------------------|---------|------------|---------------|---------|---------------------------------------|
-| Transmitter           | 0       | 0          | 1             | 7       | Top                                   |
-| Receiver              | 1       | 0          | 2             | 17      | Bottom                                |
+| inuti24 (Mobile) | SPI bus | SPI device | Device Number | CE GPIO | Position (relative to `inuti24` text) |
+| ---------------- | ------- | ---------- | ------------- | ------- | ------------------------------------- |
+| Transmitter      | 0       | 0          | 1             | 7       | Top                                   |
+| Receiver         | 1       | 0          | 2             | 17      | Bottom                                |
 
-| inuti32 (Base)      | SPI bus | SPI device | Device Number | CE GPIO | Position (relative to `inuti24` text) |
-|---------------------|---------|------------|---------------|---------|---------------------------------------|
-| Transmitter         | 0       | 0          | 1             | 17       | Top                                   |
-| Receiver            | 1       | 0          | 2             | 7      | Bottom                                |
+| inuti32 (Base) | SPI bus | SPI device | Device Number | CE GPIO | Position (relative to `inuti24` text) |
+| -------------- | ------- | ---------- | ------------- | ------- | ------------------------------------- |
+| Transmitter    | 0       | 0          | 1             | 17      | Top                                   |
+| Receiver       | 1       | 0          | 2             | 7       | Bottom                                |
 
 </center>
