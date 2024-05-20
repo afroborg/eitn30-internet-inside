@@ -1,8 +1,5 @@
 #!/bin/bash -e
 
-# Get the BASE and MOBILE IP addresses
-source "$(dirname $0)/env.sh"
-
 # Constants
 readonly TARGET=aarch64-unknown-linux-gnu
 readonly BINARY_PATH=target/${TARGET}/release/eitn30-internet-inside
@@ -13,35 +10,20 @@ readonly PERFORMANCE_SCRIPT_PATH=performance/performance.py
 readonly PERFORMANCE_REQUIREMENTS_PATH=performance/requirements.txt
 readonly SERVICE_NAME=longge.service
 
-while getopts "n:" opt; do
-  case ${opt} in
-    n )
-      PI_NUMBER=${OPTARG}
-      if [ ${OPTARG} = "32" ]
-      then
-        PI_IP=${BASE_IP}
-      elif [ ${OPTARG} = "24" ]
-      then
-        PI_IP=${MOBILE_IP}
-      else
-        echo "Invalid PI_NUMBER"
-        exit 1
-      fi
-      ;;
-    \? )
-      echo "Usage: deploy.sh [-n <pi-ip>]"
-      exit 1
-      ;;
-  esac
-done
+readonly PI_NUMBER=$1
+readonly PI_IP=$2
 
 echo "Deploying to inuti${PI_NUMBER}"
 
 FILES="${BINARY_PATH} ${MAKEFILE_PATH}"
 
-if [ ${PI_IP} = ${MOBILE_IP} ]
+if [ $3 = "--mobile" ]
 then
+  echo "Deploying mobile"
   FILES="${FILES} ${PERFORMANCE_SCRIPT_PATH} ${PERFORMANCE_REQUIREMENTS_PATH}"
+
+  else
+  echo "Deploying base"
 fi
 
 rsync -r ${FILES} -e "ssh -i ${SSH_KEY}" pi@${PI_IP}:~/eitn30 > /dev/null

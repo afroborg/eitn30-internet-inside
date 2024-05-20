@@ -2,8 +2,7 @@ use clap::Parser;
 use config::*;
 use interface::{tun, TunReader, TunWriter};
 use std::sync::mpsc::{channel, Receiver as ChannelReceiver, Sender as ChannelSender};
-use std::thread::{self, sleep};
-use std::time::Instant;
+use std::thread;
 use transceive::{Receiver, Transmitter};
 
 mod cli;

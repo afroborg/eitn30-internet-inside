@@ -19,9 +19,9 @@ connect-mobile-lab:
 build:
 	sh scripts/build.sh $(build_target)
 deploy-base:
-	sh scripts/deploy.sh -n $(base_number)
+	sh scripts/deploy.sh $(base_number) $(base_ip)
 deploy-mobile:
-	sh scripts/deploy.sh -n $(mobile_number)
+	sh scripts/deploy.sh $(mobile_number) $(mobile_ip) --mobile
 deploy: deploy-base deploy-mobile
 test: 
 	sh scripts/test.sh $(build_target)

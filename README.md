@@ -47,7 +47,7 @@ If that doesn't work either, the library may need to be build after the second `
 
 The project code is written in Rust, and is built using `cross` for the `aarch64-unknown-linux-gnu` architecture. Make sure that docker is installed and running.
 
-Copy the contents of `env.sh.example` in the `scripts` directory to a file called `env.sh` in the same directory, and fill in the IP addresses for deployment to base and mobile. Build and deploy the project by running the following commands from the root directory:
+Build and deploy the project by running the following commands from the root directory:
 
 ```bash
 make build
