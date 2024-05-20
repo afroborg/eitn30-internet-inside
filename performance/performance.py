@@ -127,8 +127,8 @@ def test_performances():
         print(f'')
         print(f'Testing bandwidth {bandwidth // 1000} kbps')
 
-        Perform a test for each bandwidth and duration        
-        client = create_client(server_ip, server_port, start_b, duration, protocol)
+        # Perform a test for each bandwidth and duration        
+        client = create_client(server_ip, server_port, bandwidth, duration, protocol)
 
         results.append({
             'bandwidth': bandwidth,

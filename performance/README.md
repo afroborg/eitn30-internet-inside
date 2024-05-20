@@ -25,10 +25,18 @@ Example usage:
 python performance.py 10.0.0.0:5002 10 5 # Tests 10 kbps for 5 seconds using the UDP protocol.
 ```
 
-Alternatively, use the iperf3 command in the terminal, but some magic is required to get a good JSON output:
+The script also supports testing a range of bandwidths. Instead of passing a `<bandwidth>`, it is possible to pass the start, step, and end bandwidths formatted as `<start_b>:<step_b>:<end_b>`.
+
+However, there seems to be some issue with iperf3 that causes the tests to stop working after a while. Example usage in this case is as follows:
 
 ```bash
-iperf3 -c 10.0.0.0 -p 5002 -b <bandwidth> -t <duration> -u
+python performance.py 10.0.0.0:5002 10:20:300 5 udp # Tests from 10 kbps to 300 kbps in steps of 20 kbps, for 5 seconds each
+```
+
+Alternatively, use the iperf3 command in the terminal, but some magic would be required to get a good JSON output:
+
+```bash
+iperf3 -c 10.0.0.0 -p 5002 -b <bandwidth> -t <duration> -u -J
 ```
 
 ### Plot data

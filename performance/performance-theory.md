@@ -61,15 +61,3 @@ $$\frac{313b}{465.5 \mu s} = \frac{313b}{465.5 \cdot 10^{-6} s} = 672.4 kbps$$
 Of which, only 32B is payload. This means that the maximum theoretical throughput is:
 
 $$\frac{32B}{465.5 \mu s} = \frac{256 b}{465.5 \cdot 10^{-6} s} = 550.0 kbps$$
-
-## Proposed changes
-
-### ACK
-
-We tried to disable automatic ACK in the library, with the idea that the throughput could be increased if the receiver would not need to transmit an ACK for each received package.
-
-However, to the extent that we got this working, it did not seem to have any effect on the throughput. And according to the datasheet, the dynamic payload length would also need to be disabled for the ACK to be disabled. When trying this, the transmission did not work at all. Our theory is that the library is dependent on ACKs being sent, so removing ACKs would require the rewriting of most of the library. Therefore we instead reverted these changes.
-
-### CRC
-
-We also tried to decrease the CRC to 1 B, as the datasheet states that this should be possible. However, changing this made the program non-functional. The same thing occured when removing the CRC altogether. Therefore, we reverted these changes as well.

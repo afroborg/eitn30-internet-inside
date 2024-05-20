@@ -67,8 +67,6 @@ fn tx_main(mut tx: Transmitter, tun_reader: TunReader) -> ! {
     loop {
         let data = tx_queue.recv().unwrap();
 
-        // let now = Instant::now(); // Timing
-
         data.chunks(PACKET_SIZE * QUEUE_SIZE).for_each(|queue| {
             queue.chunks(PACKET_SIZE).for_each(|pkt| {
                 tx.push(pkt).unwrap();
@@ -78,8 +76,6 @@ fn tx_main(mut tx: Transmitter, tun_reader: TunReader) -> ! {
                 println!("Error: {err}");
             };
         });
-
-        // println!("Transmit chunk time: {:.2?}", now.elapsed()); // Timing
     }
 }
 
