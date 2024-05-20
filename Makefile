@@ -25,3 +25,7 @@ deploy-mobile:
 deploy: deploy-base deploy-mobile
 test: 
 	sh scripts/test.sh $(build_target)
+pdf:
+	pandoc individual-goals.md -o individual-goals.pdf
+	pandoc individual-goals-updated.md -o individual-goals-updated.pdf
+	pandoc performance-evaluation.md -o performance-evaluation.pdf
